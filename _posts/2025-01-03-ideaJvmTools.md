@@ -17,11 +17,11 @@ tags: 工具 Java 调试
 
 首先点击IDEA右上角的配置按钮：
 
-![IDEA配置按钮](../assets/images/ideaJvmTools/img.png)
+![IDEA配置按钮](/assets/images/ideaJvmTools/img.png)
 
 在弹出的下拉菜单中，选择"添加配置"或"编辑配置"，然后点击"+"号新建一个远程JVM调试配置：
 
-![新建JVM调试配置](../assets/images/ideaJvmTools/img2.png)
+![新建JVM调试配置](/assets/images/ideaJvmTools/img2.png)
 
 ### 2. 设置调试参数
 
@@ -34,7 +34,7 @@ tags: 工具 Java 调试
 - 端口：填写开放的调试端口
 - JDK版本：选择与目标环境对应的版本
 
-![调试参数配置](../assets/images/ideaJvmTools/img3.png)
+![调试参数配置](/assets/images/ideaJvmTools/img3.png)
 
 ### 3. 了解JDWP参数
 
@@ -51,7 +51,7 @@ JDWP（Java Debug Wire Protocol）是调试器和目标虚拟机之间的通信�
 
 如果项目部署在Kubernetes中，需要在部署配置中添加JVM调试参数：
 
-![K8s部署参数配置](../assets/images/ideaJvmTools/img4.png)
+![K8s部署参数配置](/assets/images/ideaJvmTools/img4.png)
 
 关键参数：
 ```
@@ -62,7 +62,7 @@ JDWP（Java Debug Wire Protocol）是调试器和目标虚拟机之间的通信�
 
 对于K8s部署，还需要将服务的调试端口暴露出来。这里采用NodePort方式，将容器的5005端口映射为NodePort的60823：
 
-![K8s服务端口配置](../assets/images/ideaJvmTools/img5.png)
+![K8s服务端口配置](/assets/images/ideaJvmTools/img5.png)
 
 ## 开始调试
 
