@@ -1,6 +1,6 @@
 ---
 title: IntelliJ IDEA使用JVM远程调试
-tags: 工具 Java 调试
+tags: 工具
 ---
 
 # IntelliJ IDEA使用JVM远程调试
