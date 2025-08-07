@@ -168,13 +168,15 @@ search:
 
 ## => Analytics
 ##############################
+## => Analytics
+##############################
 analytics:
-  provider: false # false (default), "google", "custom"
+  provider: google  # 改为 google
 
   ## Google Analytics
   google:
-    tracking_id : # Google Analytics id for the site
-    anonymize_ip: false # Anonymize IP tracking for Analytics
+    tracking_id : "G-VNRLC8R9CH"  # 填入你的追踪ID
+    anonymize_ip: true  # 改为 true，保护用户隐私
 
 
 ## => Build
