@@ -52,7 +52,7 @@ jps -l
 | **JProfiler** | 功能强大，商业软件 | 复杂内存问题分析 |
 | **Eclipse MAT** | 开源，专业 | 大型dump文件分析 |
 
-![内存分析工具界面](../assets/images/excludeOOM/img.png)
+![内存分析工具界面](/assets/images/excludeOOM/img.png)
 
 ### 2. 关键内存占用分析
 
