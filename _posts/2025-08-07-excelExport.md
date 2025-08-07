@@ -1,6 +1,6 @@
 ---
 title: Excel大数据量导入优化实战：从300秒到8秒的性能优化之路
-tags: [性能优化, Excel导入, 多线程, 数据库优化, Java]
+tags: [场景]
 categories: [后端开发, 性能优化]
 excerpt: "深度解析Excel大数据量导入的性能优化方案，涵盖内存管理、多线程处理、事务控制、数据库调优等核心技术点"
 ---
@@ -35,32 +35,32 @@ excerpt: "深度解析Excel大数据量导入的性能优化方案，涵盖内�
  */
 @Component
 public class ExcelBatchProcessor {
-    
+
     private static final int BATCH_SIZE = 10000;
-    
+
     public void processExcelFile(String filePath) {
         EasyExcel.read(filePath, YourDataModel.class, new ExcelDataListener())
                 .sheet()
                 .headRowNumber(1)
                 .doRead();
     }
-    
+
     @Component
     public class ExcelDataListener extends AnalysisEventListener<YourDataModel> {
-        
+
         private List<YourDataModel> dataList = new ArrayList<>();
-        
+
         @Override
         public void invoke(YourDataModel data, AnalysisContext context) {
             dataList.add(data);
-            
+
             // 达到批处理大小时进行处理
             if (dataList.size() >= BATCH_SIZE) {
                 processBatch(dataList);
                 dataList.clear();
             }
         }
-        
+
         @Override
         public void doAfterAllAnalysed(AnalysisContext context) {
             // 处理最后一批数据
@@ -68,7 +68,7 @@ public class ExcelBatchProcessor {
                 processBatch(dataList);
             }
         }
-        
+
         private void processBatch(List<YourDataModel> batch) {
             // 业务逻辑处理：数据验证、格式转换等
             validateAndTransform(batch);
@@ -89,56 +89,56 @@ public class ExcelBatchProcessor {
  * 支持事务一致性控制
  */
 public void parallelUpdateBatch(List<PauseAndReuseUpdateDto> list) throws InterruptedException {
-    
+
     // 事务回滚控制器
     DataRollBack dataRollBack = new DataRollBack(false);
-    
+
     // 主线程等待闭锁
     CountDownLatch mainCountDownLatch = new CountDownLatch(1);
-    
+
     // 动态计算线程数（CPU核心数 * 2）
     Integer threadNum = Runtime.getRuntime().availableProcessors() * 2;
-    
+
     // 数据分片：根据线程数平均分配任务
     List<List<PauseAndReuseUpdateDto>> dataChunks = ListUtil.averageAssign(list, threadNum);
-    
+
     // 子线程执行结果收集
     List<Boolean> executionResults = Collections.synchronizedList(new ArrayList<>());
-    
+
     // 过滤空列表
     dataChunks = dataChunks.stream()
             .filter(chunk -> !ObjectUtils.isEmpty(chunk))
             .collect(Collectors.toList());
-    
+
     // 子线程计数器
     CountDownLatch childCountDownLatch = new CountDownLatch(dataChunks.size());
-    
+
     // 🚀 启动多线程任务
     for (List<PauseAndReuseUpdateDto> dataChunk : dataChunks) {
         CompletableFuture.runAsync(() -> {
-            parallelUpdate(dataChunk, mainCountDownLatch, childCountDownLatch, 
+            parallelUpdate(dataChunk, mainCountDownLatch, childCountDownLatch,
                          executionResults, dataRollBack);
         }, threadPoolExecutor);
     }
-    
+
     // 等待所有子线程完成
     childCountDownLatch.await();
-    
+
     // 📊 检查执行结果
     boolean hasFailure = executionResults.stream().anyMatch(result -> !result);
     if (hasFailure) {
         log.warn("=== 多线程插入执行失败，准备回滚 ===");
         dataRollBack.setIsRollBack(true);
     }
-    
+
     // 🔓 释放所有子线程，开始事务提交/回滚
     mainCountDownLatch.countDown();
-    
+
     if (dataRollBack.getIsRollBack()) {
         log.error("=== 主线程触发全局回滚 ===");
         throw new SchedulingException("数据处理失败，已回滚所有操作");
     }
-    
+
     log.info("=== ✅ 多线程数据插入成功完成 ===");
 }
 ```
@@ -155,34 +155,34 @@ public void parallelUpdateBatch(List<PauseAndReuseUpdateDto> list) throws Interr
 public void parallelUpdate(List<PauseAndReuseUpdateDto> dataChunk,
                           CountDownLatch mainCountDownLatch,
                           CountDownLatch childCountDownLatch,
-                          List<Boolean> executionResults, 
+                          List<Boolean> executionResults,
                           DataRollBack dataRollBack) {
-    
+
     TransactionStatus transactionStatus = null;
     String threadName = "MyTx" + Thread.currentThread().getName();
-    
+
     try {
         // 🔄 创建独立事务
         DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
         definition.setName(threadName);
         definition.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
         transactionStatus = transactionManager.getTransaction(definition);
-        
+
         // 📝 执行数据处理逻辑
         for (PauseAndReuseUpdateDto dto : dataChunk) {
             String carNo = dto.getKcProductionPlanEntity().getCarNo();
             log.debug("子线程: {}, 处理车号: {}", threadName, carNo);
-            
+
             // 主表更新
             this.saveOrUpdate(dto.getKcProductionPlanEntity());
-            
+
             // 关联表批量更新
             updateRelatedData(dto, threadName, carNo);
         }
-        
+
         // ✅ 标记当前线程执行成功
         executionResults.add(Boolean.TRUE);
-        
+
     } catch (TransactionException e) {
         log.error("子线程: {} 事务创建失败", threadName, e);
         executionResults.add(Boolean.FALSE);
@@ -196,11 +196,11 @@ public void parallelUpdate(List<PauseAndReuseUpdateDto> dataChunk,
         // 🔄 释放子线程计数
         childCountDownLatch.countDown();
     }
-    
+
     try {
         // ⏳ 等待主线程协调决策
         mainCountDownLatch.await();
-        
+
         // 🎯 根据全局状态决定提交或回滚
         if (dataRollBack.getIsRollBack()) {
             transactionManager.rollback(transactionStatus);
@@ -209,7 +209,7 @@ public void parallelUpdate(List<PauseAndReuseUpdateDto> dataChunk,
             transactionManager.commit(transactionStatus);
             log.info("子线程: {} 已提交", threadName);
         }
-        
+
     } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         log.error("子线程: {} 等待中断", threadName, e);
@@ -229,7 +229,7 @@ private void updateRelatedData(PauseAndReuseUpdateDto dto, String threadName, St
             throw new RuntimeException("更新岗位供件时间失败");
         }
     }
-    
+
     // 更新领料单数据
     List<PiGetMaterialsEntity> materialsList = dto.getPiGetList();
     if (ObjectUtil.isNotEmpty(materialsList)) {
@@ -295,34 +295,34 @@ SET GLOBAL myisam_sort_buffer_size = 134217728;   -- 128MB
  */
 @Component
 public class ExcelImportLockManager {
-    
+
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
-    
+
     private static final String IMPORT_LOCK_KEY = "excel:import:lock";
     private static final int MAX_CONCURRENT_IMPORTS = 3;  // 最大并发导入数
     private static final int LOCK_TIMEOUT = 30;  // 锁超时时间（分钟）
-    
+
     /**
      * 获取导入许可
      */
     public boolean acquireImportPermit(String userId) {
         String lockKey = IMPORT_LOCK_KEY + ":" + userId;
-        
+
         // 检查当前并发数
         Set<String> currentLocks = redisTemplate.keys(IMPORT_LOCK_KEY + ":*");
         if (currentLocks != null && currentLocks.size() >= MAX_CONCURRENT_IMPORTS) {
             log.warn("当前导入并发数已达上限: {}", MAX_CONCURRENT_IMPORTS);
             return false;
         }
-        
+
         // 获取锁
         Boolean acquired = redisTemplate.opsForValue()
                 .setIfAbsent(lockKey, "importing", Duration.ofMinutes(LOCK_TIMEOUT));
-        
+
         return Boolean.TRUE.equals(acquired);
     }
-    
+
     /**
      * 释放导入许可
      */
@@ -356,16 +356,16 @@ public class ExcelImportLockManager {
  */
 @Configuration
 public class ThreadPoolConfig {
-    
+
     @Bean("excelProcessorThreadPool")
     public ThreadPoolExecutor excelProcessorThreadPool() {
         int corePoolSize = Runtime.getRuntime().availableProcessors() * 2;
         int maxPoolSize = corePoolSize * 2;
         long keepAliveTime = 60L;
-        
+
         return new ThreadPoolExecutor(
                 corePoolSize,                    // 核心线程数
-                maxPoolSize,                     // 最大线程数  
+                maxPoolSize,                     // 最大线程数
                 keepAliveTime,                   // 线程存活时间
                 TimeUnit.SECONDS,                // 时间单位
                 new ArrayBlockingQueue<>(100),   // 工作队列
@@ -428,20 +428,20 @@ public class ThreadPoolConfig {
  */
 @Component
 public class PerformanceMonitor {
-    
+
     private final MeterRegistry meterRegistry;
-    
+
     public void recordImportMetrics(String operation, long duration, int recordCount) {
         // 记录处理耗时
         Timer.Sample sample = Timer.start(meterRegistry);
         sample.stop(Timer.builder("excel.import.duration")
                 .tag("operation", operation)
                 .register(meterRegistry));
-        
+
         // 记录处理数量
         meterRegistry.counter("excel.import.records", "operation", operation)
                 .increment(recordCount);
-        
+
         // 记录处理速度（条/秒）
         double rps = recordCount * 1000.0 / duration;
         meterRegistry.gauge("excel.import.rps", "operation", operation, rps);
@@ -452,7 +452,7 @@ public class PerformanceMonitor {
 ## 🔮 后续优化方向
 
 1. **异步化改造**：使用MQ实现完全异步处理
-2. **分库分表**：支持更大数据量的水平扩展  
+2. **分库分表**：支持更大数据量的水平扩展
 3. **缓存优化**：引入Redis缓存热点数据
 4. **文件分片**：支持超大Excel文件的分片上传
 5. **实时进度**：WebSocket实时反馈处理进度
