@@ -169,11 +169,11 @@ search:
 ## => Analytics
 ##############################
 analytics:
-  provider: false
+  provider: google
 
   ## Google Analytics
   google:
-    tracking_id : "G-VNRLC8R9CH"
+    tracking_id : "G-VNRLC8R9CH"   # 你的GA4测量ID
     anonymize_ip: true
 
 
