@@ -102,7 +102,7 @@ paginate_path: /page:num # don't change this unless for special need
 
 ## => Sources
 ##############################
-sources: bootcdn          # 显式指定，避免为空时取不到CDN
+sources: unpkg
 
 
 ## => Sharing
@@ -223,3 +223,6 @@ plugins:
   - jekyll-paginate
   - jekyll-sitemap
   - jemoji
+
+assets:
+  self_host: true
