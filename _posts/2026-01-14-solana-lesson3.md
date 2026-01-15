@@ -11,6 +11,7 @@ tags: Solana 教程
 - [Solana 官方安装文档](https://solana.com/zh/docs/intro/installation)
 - [链上存储程序课程资料](https://accu.cc/content/solana/ss_rust_env/)
 - [完整源码 GitHub](https://github.com/mohanson/pxsol-ss)
+- [个人学习仓库](https://github.com/ren997/solana_learn/tree/master/pxsol-ss)（包含详细操作手册）
 
 ## 环境安装
 
@@ -195,7 +196,7 @@ let rent_exemption = solana_program::rent::Rent::get()?.minimum_balance(data.len
 
 ```rust
 let calculated_pda = solana_program::pubkey::Pubkey::find_program_address(
-    &[&account_user.key.to_bytes()], 
+    &[&account_user.key.to_bytes()],
     program_id
 );
 assert_eq!(account_data.key, &calculated_pda.0);
@@ -317,13 +318,13 @@ pub fn process_instruction(
             accounts,
         )?;
     }
-    
+
     // 租金退款
     if rent_exemption < account_data.lamports() {
         **account_user.lamports.borrow_mut() = account_user.lamports() + account_data.lamports() - rent_exemption;
         **account_data.lamports.borrow_mut() = rent_exemption;
     }
-    
+
     // 重新分配空间并写入数据
     account_data.realloc(data.len(), false)?;
     account_data.data.borrow_mut().copy_from_slice(data);
@@ -356,7 +357,7 @@ program_pubkey = ada.program_deploy(bytearray(program_data))
 print(program_pubkey)  # DVapU9kvtjzFdH3sRd3VDCXjZVkwBR6Cxosx36A5sK5E
 ```
 
-Solana 部署流程：
+**Solana 部署流程：**
 1. 创建程序账户
 2. 分片上传程序代码（单笔交易最大 1232 字节）
 3. 调用 BPF Loader 的 finalize 方法
@@ -447,3 +448,4 @@ python make.py load
 python make.py save "片云天共远, 永夜月同孤."
 python make.py load
 ```
+
