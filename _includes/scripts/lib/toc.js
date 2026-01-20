@@ -57,6 +57,31 @@
         }
         $activeLast && $activeLast.removeClass('active');
         ($activeLast = $activeCur).addClass('active');
+        scrollActiveIntoView();
+      }
+
+      function scrollActiveIntoView() {
+        if (!$activeCur || !$activeCur.length || !$root || !$root.length) { return; }
+        var rootEl = $root[0];
+        // root 不可滚动则无需处理
+        if (!rootEl || rootEl.scrollHeight <= rootEl.clientHeight) { return; }
+        var activeEl = $activeCur[0];
+        if (!activeEl || !activeEl.getBoundingClientRect) { return; }
+
+        var padding = 8;
+        var rootRect = rootEl.getBoundingClientRect();
+        var elRect = activeEl.getBoundingClientRect();
+        // 元素在 root 滚动内容中的相对位置
+        var elTop = (elRect.top - rootRect.top) + rootEl.scrollTop;
+        var elBottom = elTop + elRect.height;
+        var viewTop = rootEl.scrollTop;
+        var viewBottom = viewTop + rootEl.clientHeight;
+
+        if (elTop < viewTop + padding) {
+          rootEl.scrollTop = Math.max(0, elTop - padding);
+        } else if (elBottom > viewBottom - padding) {
+          rootEl.scrollTop = Math.min(rootEl.scrollHeight, elBottom - rootEl.clientHeight + padding);
+        }
       }
       function render() {
         if(!hasRendered) {

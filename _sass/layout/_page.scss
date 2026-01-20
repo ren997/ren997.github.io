@@ -61,6 +61,11 @@ html,
 .page__aside {
   .toc-aside {
     padding: map-get($spacers, 5) 0 map-get($spacers, 3) map-get($spacers, 5);
+    // 让文章目录自身可滚动（避免标题很多时无法看到底部项）
+    // 使用 max-height 基于视口高度，配合 affix 的 fixed/top=0 不会撑破页面布局
+    max-height: calc(100vh - #{map-get($spacers, 5)});
+    @include overflow(auto);
+    overscroll-behavior: contain;
   }
 }
 
