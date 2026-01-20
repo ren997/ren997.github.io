@@ -17,10 +17,19 @@
         $scrollTarget = $(scrollTarget);
         $scroller = $(scroller);
       }
+      // function calc() {
+      //   headingsPos = [];
+      //   $headings.each(function() {
+      //     headingsPos.push(Math.floor($(this).position().top));
+      //   });
+      // }
       function calc() {
         headingsPos = [];
+        var isWindowScroll = $scrollTarget && $scrollTarget[0] === window;
         $headings.each(function() {
-          headingsPos.push(Math.floor($(this).position().top));
+          var $h = $(this);
+          var top = isWindowScroll ? $h.offset().top : $h.position().top;
+          headingsPos.push(Math.floor(top));
         });
       }
       function setState(element, disabled) {
