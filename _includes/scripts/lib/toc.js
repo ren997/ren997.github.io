@@ -25,10 +25,18 @@
       // }
       function calc() {
         headingsPos = [];
-        var isWindowScroll = $scrollTarget && $scrollTarget[0] === window;
+        var isWindowScroll = !scrollTarget || scrollTarget === window || $scrollTarget[0] === window;
         $headings.each(function() {
           var $h = $(this);
-          var top = isWindowScroll ? $h.offset().top : $h.position().top;
+          var top;
+          if (isWindowScroll) {
+            // window 滚动：用 offset().top（相对文档顶部）
+            top = $h.offset().top;
+          } else {
+            // 容器内滚动：计算标题在容器内容区的绝对位置
+            // = (标题相对文档位置 - 容器相对文档位置) + 容器当前滚动距离
+            top = $h.offset().top - $scrollTarget.offset().top + $scrollTarget.scrollTop();
+          }
           headingsPos.push(Math.floor(top));
         });
       }
