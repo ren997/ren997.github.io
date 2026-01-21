@@ -1,6 +1,6 @@
 ---
 title: 第一节-Solana 核心概念通俗讲解
-tags: Solana 教程
+tags: [Solana]
 ---
 
 <!--more-->

@@ -1,6 +1,6 @@
 ---
 title: 第四节-Solana程序开发入门-手工编写的泰铢币程序
-tags: Solana 教程
+tags: [Solana]
 ---
 
 ## 参考资料

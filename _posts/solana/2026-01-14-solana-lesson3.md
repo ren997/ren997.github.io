@@ -1,6 +1,6 @@
 ---
 title: 第三节-Solana程序开发入门-简单链上数据存储程序
-tags: Solana 教程
+tags: [Solana]
 ---
 
 这一节主要讲解简单的链上数据存储程序开发。

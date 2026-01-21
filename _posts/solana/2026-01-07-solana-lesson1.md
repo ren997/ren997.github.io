@@ -1,6 +1,6 @@
 ---
 title: 第一节-Solana 介绍
-tags: Solana 教程
+tags: [Solana]
 ---
 
 ## 课程资料

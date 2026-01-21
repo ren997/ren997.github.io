@@ -1,6 +1,6 @@
 ---
 title: 第二节-Solana的代币和NFT
-tags: Solana 教程
+tags: [Solana]
 ---
 
 ## 课程资料
