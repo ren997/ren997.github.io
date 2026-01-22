@@ -12,6 +12,17 @@ tags: [Solana]
 - **Solana的代币与NFT**：[代币与NFT课程](https://openbuild.xyz/learn/challenges/2086624241/1766375394)（下面的资料主要基于这一部分）
 - **课程源码**：[hello_solana](https://github.com/lbc-team/hello_solana)
 
+### Task 1：铸造 SPL Token
+
+**学习资源：**
+
+- **助教包**：[Task 资源包](https://github.com/Tools-touch/Task-/)
+- **课程回放**：[Bilibili 视频](https://www.bilibili.com/video/BV1evzGBsEqW/)
+
+**实践作业：**
+
+- [Task 1: 铸造 SPL Token (web3.js)](https://learn.blueshift.gg/zh-CN/challenges/typescript-mint-an-spl-token)
+
 <!--more-->
 
 ## Solana 账户模型
