@@ -8,7 +8,7 @@ tags: [Solana]
 本节主要讲解区块链基础和 Solana 的概述。本文是对资料的 Solana 介绍进行了部分整理，用通俗概念来讲解 Solana 的核心概念。
 
 - **资料来源**：[OpenBuild - Solana 教程](https://openbuild.xyz/learn/challenges/2086624241/1767500233)
-- **通俗讲解版本**：如果你觉得本文内容较为抽象，可以阅读 [《第一节-Solana 核心概念通俗讲解》]({{ site.baseurl }}/2026/01/07/solana-lesson1-explanation.html)，该文章用更生活化的语言和类比来解释 Solana 的核心概念
+- **通俗讲解版本**：如果你觉得本文内容较为抽象，可以阅读 [《第一节-Solana 核心概念通俗讲解》]({{ site.baseurl }}/2026/01/07/solana-lesson1-core-concepts-explained.html)，该文章用更生活化的语言和类比来解释 Solana 的核心概念
 
 <!--more-->
 
