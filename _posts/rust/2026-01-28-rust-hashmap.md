@@ -121,7 +121,7 @@ scores.insert(String::from("Yellow"), 50);
 
 HashMap 不像 Vec 和 String 那样常用，所以没有被自动引入（prelude）。这是 Rust 的设计选择：
 - **Vec**：非常常用 → 在 prelude 中
-- **String**：非常常用 → 在 prelude 中  
+- **String**：非常常用 → 在 prelude 中
 - **HashMap**：相对少用 → 需要手动 `use`
 
 ### 方法 2：使用 `collect` 方法从两个 Vector 创建
@@ -458,11 +458,11 @@ map.insert(1, 2);
 
 **性能 vs 安全性**：
 
-| 哈希函数 | 性能 | 安全性 | 适用场景 |
-|---------|------|--------|---------|
-| SipHash（默认） | 中等 | 高（抗 DoS） | 通用场景，键来自不可信输入 |
-| FxHash | 快 | 低（不抗 DoS） | 键可信，追求性能 |
-| AHash | 很快 | 中等 | 平衡性能和安全性 |
+| 哈希函数        | 性能 | 安全性       | 适用场景          |
+|-------------|----|-----------|---------------|
+| SipHash（默认） | 中等 | 高（抗 DoS）  | 通用场景，键来自不可信输入 |
+| FxHash      | 快  | 低（不抗 DoS） | 键可信，追求性能      |
+| AHash       | 很快 | 中等        | 平衡性能和安全性      |
 
 ---
 
@@ -517,17 +517,17 @@ let is_empty = map.is_empty();  // false
 
 ### 常用方法总结
 
-| 方法 | 说明 | 返回值 |
-|------|------|--------|
-| `insert(k, v)` | 插入键值对 | `Option<V>`（旧值） |
-| `get(&k)` | 获取值的引用 | `Option<&V>` |
-| `get_mut(&k)` | 获取值的可变引用 | `Option<&mut V>` |
-| `remove(&k)` | 删除键值对 | `Option<V>` |
-| `contains_key(&k)` | 检查键是否存在 | `bool` |
-| `entry(k)` | 获取 Entry | `Entry<K, V>` |
-| `len()` | 获取键值对数量 | `usize` |
-| `is_empty()` | 检查是否为空 | `bool` |
-| `clear()` | 清空所有键值对 | `()` |
+| 方法                 | 说明       | 返回值              |
+|--------------------|----------|------------------|
+| `insert(k, v)`     | 插入键值对    | `Option<V>`（旧值）  |
+| `get(&k)`          | 获取值的引用   | `Option<&V>`     |
+| `get_mut(&k)`      | 获取值的可变引用 | `Option<&mut V>` |
+| `remove(&k)`       | 删除键值对    | `Option<V>`      |
+| `contains_key(&k)` | 检查键是否存在  | `bool`           |
+| `entry(k)`         | 获取 Entry | `Entry<K, V>`    |
+| `len()`            | 获取键值对数量  | `usize`          |
+| `is_empty()`       | 检查是否为空   | `bool`           |
+| `clear()`          | 清空所有键值对  | `()`             |
 
 **更多方法**：查看标准库 [HashMap API 文档](https://doc.rust-lang.org/std/collections/struct.HashMap.html)
 
@@ -658,14 +658,14 @@ fn main() {
 
 ### HashMap vs Vec vs String
 
-| 特性 | HashMap | Vec | String |
-|------|---------|-----|--------|
-| 数据结构 | 哈希表 | 动态数组 | UTF-8 字节数组 |
-| 访问方式 | 键 | 索引 | 索引/迭代器 |
-| 有序性 | 无序 | 有序 | 有序 |
-| 查找复杂度 | O(1) 平均 | O(n) | O(n) |
-| 插入复杂度 | O(1) 平均 | O(1) 末尾 | O(1) 末尾 |
-| 内存开销 | 高（哈希表） | 低 | 低 |
+| 特性    | HashMap | Vec     | String     |
+|-------|---------|---------|------------|
+| 数据结构  | 哈希表     | 动态数组    | UTF-8 字节数组 |
+| 访问方式  | 键       | 索引      | 索引/迭代器     |
+| 有序性   | 无序      | 有序      | 有序         |
+| 查找复杂度 | O(1) 平均 | O(n)    | O(n)       |
+| 插入复杂度 | O(1) 平均 | O(1) 末尾 | O(1) 末尾    |
+| 内存开销  | 高（哈希表）  | 低       | 低          |
 
 ### 最佳实践
 
