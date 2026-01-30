@@ -1,6 +1,6 @@
 ---
 title: 第七节 - Pinocchio 入门
-tags: [Solana, Rust, Pinocchio]
+tags: [Solana]
 ---
 
 # Pinocchio 入门
@@ -173,7 +173,7 @@ pub trait TryFrom<T>: Sized {
 pub struct Transfer<'info> {
     #[account(mut)]
     pub from: Signer<'info>,
-    
+
     #[account(mut)]
     pub to: SystemAccount<'info>,
 }
@@ -189,21 +189,21 @@ pub struct TransferAccounts<'a> {
 
 impl<'a> TryFrom<&'a [AccountInfo]> for TransferAccounts<'a> {
     type Error = ProgramError;
-    
+
     fn try_from(accounts: &'a [AccountInfo]) -> Result<Self, Self::Error> {
         let [from, to] = accounts else {
             return Err(ProgramError::NotEnoughAccountKeys);
         };
-        
+
         // 手动实现 Anchor 宏自动做的检查
         if !from.is_signer() {
             return Err(ProgramError::MissingRequiredSignature);
         }
-        
+
         if !from.is_writable || !to.is_writable {
             return Err(ProgramError::InvalidAccountData);
         }
-        
+
         Ok(Self { from, to })
     }
 }
@@ -459,7 +459,7 @@ pub trait MintInit {
         mint_authority: &[u8; 32],
         freeze_authority: Option<&[u8; 32]>
     ) -> ProgramResult;
-    
+
     fn init_if_needed(
         account: &AccountInfo,
         payer: &AccountInfo,
@@ -622,7 +622,7 @@ pub struct Deposit<'a> {
 impl<'a> TryFrom<(&'a [u8], &'a [AccountInfo])> for Deposit<'a> {
     type Error = ProgramError;
 
-    fn try_from((data, accounts): (&'a [u8], &'a [AccountInfo])) 
+    fn try_from((data, accounts): (&'a [u8], &'a [AccountInfo]))
         -> Result<Self, Self::Error> {
         let accounts = DepositAccounts::try_from(accounts)?;
         let instruction_datas = DepositInstructionData::try_from(data)?;
@@ -769,7 +769,7 @@ impl From<PinocchioError> for ProgramError {
 ```rust
 impl TryFrom<u32> for PinocchioError {
     type Error = ProgramError;
-    
+
     fn try_from(error: u32) -> Result<Self, Self::Error> {
         match error {
             0 => Ok(PinocchioError::NotRentExempt),
@@ -785,7 +785,7 @@ impl TryFrom<u32> for PinocchioError {
 impl ToStr for PinocchioError {
     fn to_str<E>(&self) -> &'static str {
         match self {
-            PinocchioError::NotRentExempt => 
+            PinocchioError::NotRentExempt =>
                 "Error: Lamport balance below rent-exempt threshold",
         }
     }
@@ -843,7 +843,7 @@ perf = []
 pub fn process(ctx: Context<'info>) -> ProgramResult {
     #[cfg(not(feature = "perf"))]
     sol_log("Create Class");
-    
+
     Self::try_from(ctx)?.execute()
 }
 ```
