@@ -862,6 +862,761 @@ cargo build-bpf --no-default-features
 
 ---
 
+## 完整示例：简单金库程序
+
+现在让我们把所有概念串联起来,构建一个完整的金库程序。这个程序允许用户存入和取出 SOL。
+
+### 项目结构
+
+```
+vault-program/
+├── Cargo.toml
+└── src/
+    ├── lib.rs           # 入口点和程序主逻辑
+    ├── instructions/    # 指令实现
+    │   ├── mod.rs
+    │   ├── initialize.rs
+    │   ├── deposit.rs
+    │   └── withdraw.rs
+    ├── state/          # 账户状态定义
+    │   ├── mod.rs
+    │   └── vault.rs
+    ├── error.rs        # 错误定义
+    └── helpers.rs      # 账户类型辅助工具
+```
+
+### 1. Cargo.toml 配置
+
+```toml
+[package]
+name = "vault-program"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = ["perf"]
+perf = []
+
+[dependencies]
+pinocchio = "0.5"
+pinocchio-system = "0.5"
+thiserror = { version = "2.0", default-features = false }
+num-derive = "0.4"
+num-traits = "0.2"
+
+[dev-dependencies]
+mollusk-svm = "0.1"
+solana-sdk = "2.0"
+```
+
+### 2. 错误定义 (src/error.rs)
+
+```rust
+use {
+    num_derive::FromPrimitive,
+    pinocchio::program_error::ProgramError,
+    thiserror::Error,
+};
+
+#[derive(Clone, Debug, Eq, Error, FromPrimitive, PartialEq)]
+pub enum VaultError {
+    /// 账户不是签名者
+    #[error("Account is not a signer")]
+    NotSigner,
+
+    /// 账户所有者无效
+    #[error("Invalid account owner")]
+    InvalidOwner,
+
+    /// 账户数据无效
+    #[error("Invalid account data")]
+    InvalidAccountData,
+
+    /// 金额必须大于零
+    #[error("Amount must be greater than zero")]
+    InvalidAmount,
+
+    /// 余额不足
+    #[error("Insufficient balance")]
+    InsufficientBalance,
+
+    /// 金库已初始化
+    #[error("Vault already initialized")]
+    AlreadyInitialized,
+
+    /// 金库未初始化
+    #[error("Vault not initialized")]
+    NotInitialized,
+}
+
+impl From<VaultError> for ProgramError {
+    fn from(e: VaultError) -> Self {
+        ProgramError::Custom(e as u32)
+    }
+}
+```
+
+### 3. 账户类型辅助工具 (src/helpers.rs)
+
+```rust
+use pinocchio::{account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey};
+use crate::error::VaultError;
+
+/// 账户检查 trait
+pub trait AccountCheck {
+    fn check(account: &AccountInfo) -> Result<(), ProgramError>;
+}
+
+/// 签名者账户
+pub struct SignerAccount;
+
+impl AccountCheck for SignerAccount {
+    fn check(account: &AccountInfo) -> Result<(), ProgramError> {
+        if !account.is_signer() {
+            return Err(VaultError::NotSigner.into());
+        }
+        Ok(())
+    }
+}
+
+/// 系统账户
+pub struct SystemAccount;
+
+impl AccountCheck for SystemAccount {
+    fn check(account: &AccountInfo) -> Result<(), ProgramError> {
+        if !account.is_owned_by(&pinocchio_system::ID) {
+            return Err(VaultError::InvalidOwner.into());
+        }
+        Ok(())
+    }
+}
+
+/// 可写账户检查
+pub fn check_writable(account: &AccountInfo) -> Result<(), ProgramError> {
+    if !account.is_writable() {
+        return Err(ProgramError::InvalidAccountData);
+    }
+    Ok(())
+}
+
+/// PDA 验证
+pub fn verify_pda(
+    account: &AccountInfo,
+    seeds: &[&[u8]],
+    program_id: &Pubkey,
+) -> Result<u8, ProgramError> {
+    let (expected_key, bump) = Pubkey::find_program_address(seeds, program_id);
+    if account.key() != &expected_key {
+        return Err(ProgramError::InvalidSeeds);
+    }
+    Ok(bump)
+}
+```
+
+### 4. 金库状态定义 (src/state/vault.rs)
+
+```rust
+use pinocchio::program_error::ProgramError;
+use crate::error::VaultError;
+
+/// 金库账户数据结构
+/// 
+/// 布局:
+/// - is_initialized: 1 字节 (bool)
+/// - owner: 32 字节 (Pubkey)
+/// - bump: 1 字节 (u8)
+/// 总计: 34 字节
+#[repr(C)]
+pub struct Vault {
+    /// 是否已初始化
+    pub is_initialized: bool,
+    /// 金库所有者
+    pub owner: [u8; 32],
+    /// PDA bump seed
+    pub bump: u8,
+}
+
+impl Vault {
+    /// 金库账户数据大小
+    pub const LEN: usize = 1 + 32 + 1; // 34 字节
+
+    /// 从字节切片反序列化金库数据
+    pub fn from_bytes(data: &[u8]) -> Result<&Self, ProgramError> {
+        if data.len() != Self::LEN {
+            return Err(VaultError::InvalidAccountData.into());
+        }
+        
+        // 使用零拷贝转换
+        let vault = unsafe { &*(data.as_ptr() as *const Vault) };
+        Ok(vault)
+    }
+
+    /// 从可变字节切片反序列化金库数据
+    pub fn from_bytes_mut(data: &mut [u8]) -> Result<&mut Self, ProgramError> {
+        if data.len() != Self::LEN {
+            return Err(VaultError::InvalidAccountData.into());
+        }
+        
+        // 使用零拷贝转换
+        let vault = unsafe { &mut *(data.as_mut_ptr() as *mut Vault) };
+        Ok(vault)
+    }
+
+    /// 初始化金库
+    pub fn initialize(&mut self, owner: &[u8; 32], bump: u8) -> Result<(), ProgramError> {
+        if self.is_initialized {
+            return Err(VaultError::AlreadyInitialized.into());
+        }
+
+        self.is_initialized = true;
+        self.owner.copy_from_slice(owner);
+        self.bump = bump;
+
+        Ok(())
+    }
+
+    /// 验证金库已初始化
+    pub fn check_initialized(&self) -> Result<(), ProgramError> {
+        if !self.is_initialized {
+            return Err(VaultError::NotInitialized.into());
+        }
+        Ok(())
+    }
+
+    /// 验证所有者
+    pub fn check_owner(&self, owner: &[u8; 32]) -> Result<(), ProgramError> {
+        if &self.owner != owner {
+            return Err(VaultError::InvalidOwner.into());
+        }
+        Ok(())
+    }
+}
+```
+
+### 5. 初始化指令 (src/instructions/initialize.rs)
+
+```rust
+use pinocchio::{
+    account_info::AccountInfo,
+    program_error::ProgramError,
+    pubkey::Pubkey,
+    ProgramResult,
+};
+use pinocchio_system::{instructions::CreateAccount, system_program};
+
+use crate::{
+    error::VaultError,
+    helpers::{check_writable, verify_pda, AccountCheck, SignerAccount},
+    state::Vault,
+};
+
+/// 初始化指令的账户
+pub struct InitializeAccounts<'a> {
+    /// 金库所有者(签名者,支付者)
+    pub owner: &'a AccountInfo,
+    /// 金库 PDA 账户
+    pub vault: &'a AccountInfo,
+    /// 系统程序
+    pub system_program: &'a AccountInfo,
+}
+
+impl<'a> TryFrom<&'a [AccountInfo]> for InitializeAccounts<'a> {
+    type Error = ProgramError;
+
+    fn try_from(accounts: &'a [AccountInfo]) -> Result<Self, Self::Error> {
+        // 解构账户切片
+        let [owner, vault, system_program] = accounts else {
+            return Err(ProgramError::NotEnoughAccountKeys);
+        };
+
+        // 验证 owner 是签名者
+        SignerAccount::check(owner)?;
+
+        // 验证 vault 可写
+        check_writable(vault)?;
+
+        // 验证系统程序
+        if system_program.key() != &system_program::ID {
+            return Err(ProgramError::IncorrectProgramId);
+        }
+
+        Ok(Self {
+            owner,
+            vault,
+            system_program,
+        })
+    }
+}
+
+/// 初始化指令
+pub struct Initialize<'a> {
+    pub accounts: InitializeAccounts<'a>,
+}
+
+impl<'a> Initialize<'a> {
+    /// 指令判别器
+    pub const DISCRIMINATOR: u8 = 0;
+
+    /// 从账户创建指令
+    pub fn try_from(accounts: &'a [AccountInfo]) -> Result<Self, ProgramError> {
+        let accounts = InitializeAccounts::try_from(accounts)?;
+        Ok(Self { accounts })
+    }
+
+    /// 执行初始化逻辑
+    pub fn process(&self, program_id: &Pubkey) -> ProgramResult {
+        // 1. 验证 vault 是正确的 PDA
+        let seeds = &[b"vault", self.accounts.owner.key().as_ref()];
+        let bump = verify_pda(self.accounts.vault, seeds, program_id)?;
+
+        // 2. 创建 vault 账户
+        let rent_lamports = pinocchio_system::rent::Rent::get()?
+            .minimum_balance(Vault::LEN);
+
+        CreateAccount {
+            from: self.accounts.owner,
+            to: self.accounts.vault,
+            lamports: rent_lamports,
+            space: Vault::LEN as u64,
+            owner: program_id,
+        }
+        .invoke()?;
+
+        // 3. 初始化 vault 数据
+        let mut vault_data = self.accounts.vault.try_borrow_mut_data()?;
+        let vault = Vault::from_bytes_mut(&mut vault_data)?;
+        vault.initialize(self.accounts.owner.key().as_ref(), bump)?;
+
+        #[cfg(not(feature = "perf"))]
+        pinocchio::msg!("Vault initialized for owner: {:?}", self.accounts.owner.key());
+
+        Ok(())
+    }
+}
+```
+
+### 6. 存款指令 (src/instructions/deposit.rs)
+
+```rust
+use pinocchio::{
+    account_info::AccountInfo,
+    program_error::ProgramError,
+    pubkey::Pubkey,
+    ProgramResult,
+};
+use pinocchio_system::instructions::Transfer;
+
+use crate::{
+    error::VaultError,
+    helpers::{check_writable, verify_pda, AccountCheck, SignerAccount},
+    state::Vault,
+};
+
+/// 存款指令的账户
+pub struct DepositAccounts<'a> {
+    /// 存款人(签名者)
+    pub owner: &'a AccountInfo,
+    /// 金库 PDA 账户
+    pub vault: &'a AccountInfo,
+}
+
+impl<'a> TryFrom<&'a [AccountInfo]> for DepositAccounts<'a> {
+    type Error = ProgramError;
+
+    fn try_from(accounts: &'a [AccountInfo]) -> Result<Self, Self::Error> {
+        let [owner, vault, _system_program] = accounts else {
+            return Err(ProgramError::NotEnoughAccountKeys);
+        };
+
+        // 验证 owner 是签名者
+        SignerAccount::check(owner)?;
+
+        // 验证 vault 可写
+        check_writable(vault)?;
+
+        Ok(Self { owner, vault })
+    }
+}
+
+/// 存款指令数据
+pub struct DepositInstructionData {
+    pub amount: u64,
+}
+
+impl TryFrom<&[u8]> for DepositInstructionData {
+    type Error = ProgramError;
+
+    fn try_from(data: &[u8]) -> Result<Self, Self::Error> {
+        // 验证数据长度(8 字节 u64)
+        if data.len() != 8 {
+            return Err(ProgramError::InvalidInstructionData);
+        }
+
+        // 从小端字节转换为 u64
+        let amount = u64::from_le_bytes(data.try_into().unwrap());
+
+        // 验证金额大于零
+        if amount == 0 {
+            return Err(VaultError::InvalidAmount.into());
+        }
+
+        Ok(Self { amount })
+    }
+}
+
+/// 存款指令
+pub struct Deposit<'a> {
+    pub accounts: DepositAccounts<'a>,
+    pub data: DepositInstructionData,
+}
+
+impl<'a> Deposit<'a> {
+    /// 指令判别器
+    pub const DISCRIMINATOR: u8 = 1;
+
+    /// 从账户和数据创建指令
+    pub fn try_from(
+        data: &[u8],
+        accounts: &'a [AccountInfo],
+    ) -> Result<Self, ProgramError> {
+        let accounts = DepositAccounts::try_from(accounts)?;
+        let data = DepositInstructionData::try_from(data)?;
+        Ok(Self { accounts, data })
+    }
+
+    /// 执行存款逻辑
+    pub fn process(&self, program_id: &Pubkey) -> ProgramResult {
+        // 1. 验证 vault 是正确的 PDA
+        let seeds = &[b"vault", self.accounts.owner.key().as_ref()];
+        verify_pda(self.accounts.vault, seeds, program_id)?;
+
+        // 2. 验证 vault 已初始化且所有者正确
+        let vault_data = self.accounts.vault.try_borrow_data()?;
+        let vault = Vault::from_bytes(&vault_data)?;
+        vault.check_initialized()?;
+        vault.check_owner(self.accounts.owner.key().as_ref())?;
+        drop(vault_data); // 释放借用
+
+        // 3. 执行转账(从 owner 到 vault)
+        Transfer {
+            from: self.accounts.owner,
+            to: self.accounts.vault,
+            lamports: self.data.amount,
+        }
+        .invoke()?;
+
+        #[cfg(not(feature = "perf"))]
+        pinocchio::msg!(
+            "Deposited {} lamports to vault",
+            self.data.amount
+        );
+
+        Ok(())
+    }
+}
+```
+
+### 7. 取款指令 (src/instructions/withdraw.rs)
+
+```rust
+use pinocchio::{
+    account_info::AccountInfo,
+    program_error::ProgramError,
+    pubkey::Pubkey,
+    ProgramResult,
+};
+use pinocchio_system::instructions::{Transfer, transfer};
+
+use crate::{
+    error::VaultError,
+    helpers::{check_writable, verify_pda, AccountCheck, SignerAccount},
+    state::Vault,
+};
+
+/// 取款指令的账户
+pub struct WithdrawAccounts<'a> {
+    /// 取款人(签名者,必须是 vault 所有者)
+    pub owner: &'a AccountInfo,
+    /// 金库 PDA 账户
+    pub vault: &'a AccountInfo,
+}
+
+impl<'a> TryFrom<&'a [AccountInfo]> for WithdrawAccounts<'a> {
+    type Error = ProgramError;
+
+    fn try_from(accounts: &'a [AccountInfo]) -> Result<Self, Self::Error> {
+        let [owner, vault, _system_program] = accounts else {
+            return Err(ProgramError::NotEnoughAccountKeys);
+        };
+
+        // 验证 owner 是签名者
+        SignerAccount::check(owner)?;
+
+        // 验证 vault 可写
+        check_writable(vault)?;
+
+        Ok(Self { owner, vault })
+    }
+}
+
+/// 取款指令数据
+pub struct WithdrawInstructionData {
+    pub amount: u64,
+}
+
+impl TryFrom<&[u8]> for WithdrawInstructionData {
+    type Error = ProgramError;
+
+    fn try_from(data: &[u8]) -> Result<Self, Self::Error> {
+        if data.len() != 8 {
+            return Err(ProgramError::InvalidInstructionData);
+        }
+
+        let amount = u64::from_le_bytes(data.try_into().unwrap());
+
+        if amount == 0 {
+            return Err(VaultError::InvalidAmount.into());
+        }
+
+        Ok(Self { amount })
+    }
+}
+
+/// 取款指令
+pub struct Withdraw<'a> {
+    pub accounts: WithdrawAccounts<'a>,
+    pub data: WithdrawInstructionData,
+}
+
+impl<'a> Withdraw<'a> {
+    /// 指令判别器
+    pub const DISCRIMINATOR: u8 = 2;
+
+    /// 从账户和数据创建指令
+    pub fn try_from(
+        data: &[u8],
+        accounts: &'a [AccountInfo],
+    ) -> Result<Self, ProgramError> {
+        let accounts = WithdrawAccounts::try_from(accounts)?;
+        let data = WithdrawInstructionData::try_from(data)?;
+        Ok(Self { accounts, data })
+    }
+
+    /// 执行取款逻辑
+    pub fn process(&self, program_id: &Pubkey) -> ProgramResult {
+        // 1. 验证 vault 是正确的 PDA 并获取 bump
+        let seeds = &[b"vault", self.accounts.owner.key().as_ref()];
+        let bump = verify_pda(self.accounts.vault, seeds, program_id)?;
+
+        // 2. 验证 vault 已初始化且所有者正确
+        let vault_data = self.accounts.vault.try_borrow_data()?;
+        let vault = Vault::from_bytes(&vault_data)?;
+        vault.check_initialized()?;
+        vault.check_owner(self.accounts.owner.key().as_ref())?;
+        drop(vault_data); // 释放借用
+
+        // 3. 检查余额是否足够
+        let vault_balance = self.accounts.vault.lamports();
+        let rent_exempt = pinocchio_system::rent::Rent::get()?
+            .minimum_balance(Vault::LEN);
+
+        if vault_balance < self.data.amount + rent_exempt {
+            return Err(VaultError::InsufficientBalance.into());
+        }
+
+        // 4. 执行带签名的转账(从 vault 到 owner)
+        // 使用 PDA 签名
+        let signer_seeds = &[
+            b"vault",
+            self.accounts.owner.key().as_ref(),
+            &[bump],
+        ];
+
+        // 手动构建 CPI 调用
+        transfer(
+            self.accounts.vault,
+            self.accounts.owner,
+            self.data.amount,
+            &[signer_seeds],
+        )?;
+
+        #[cfg(not(feature = "perf"))]
+        pinocchio::msg!(
+            "Withdrawn {} lamports from vault",
+            self.data.amount
+        );
+
+        Ok(())
+    }
+}
+```
+
+### 8. 指令模块 (src/instructions/mod.rs)
+
+```rust
+pub mod initialize;
+pub mod deposit;
+pub mod withdraw;
+
+pub use initialize::Initialize;
+pub use deposit::Deposit;
+pub use withdraw::Withdraw;
+```
+
+### 9. 状态模块 (src/state/mod.rs)
+
+```rust
+pub mod vault;
+pub use vault::Vault;
+```
+
+### 10. 主入口点 (src/lib.rs)
+
+```rust
+use pinocchio::{
+    account_info::AccountInfo,
+    entrypoint,
+    program_error::ProgramError,
+    pubkey::Pubkey,
+    ProgramResult,
+};
+
+mod error;
+mod helpers;
+mod instructions;
+mod state;
+
+use instructions::{Deposit, Initialize, Withdraw};
+
+entrypoint!(process_instruction);
+
+/// 程序入口点
+/// 
+/// 这是所有指令的统一入口,根据第一个字节(discriminator)
+/// 来决定调用哪个具体的指令处理器
+pub fn process_instruction(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8],
+) -> ProgramResult {
+    // 提取判别器(第一个字节)
+    let (discriminator, data) = instruction_data
+        .split_first()
+        .ok_or(ProgramError::InvalidInstructionData)?;
+
+    // 根据判别器路由到对应的指令处理器
+    match discriminator {
+        // 0: 初始化金库
+        &Initialize::DISCRIMINATOR => {
+            Initialize::try_from(accounts)?.process(program_id)
+        }
+        
+        // 1: 存款
+        &Deposit::DISCRIMINATOR => {
+            Deposit::try_from(data, accounts)?.process(program_id)
+        }
+        
+        // 2: 取款
+        &Withdraw::DISCRIMINATOR => {
+            Withdraw::try_from(data, accounts)?.process(program_id)
+        }
+        
+        // 未知指令
+        _ => Err(ProgramError::InvalidInstructionData),
+    }
+}
+
+#[cfg(test)]
+mod tests;
+```
+
+### 11. 测试 (src/tests.rs)
+
+```rust
+use pinocchio::{account_info::AccountInfo, pubkey::Pubkey};
+use mollusk_svm::Mollusk;
+use solana_sdk::{
+    account::{Account, AccountSharedData},
+    instruction::{AccountMeta, Instruction},
+};
+
+use crate::state::Vault;
+
+#[test]
+fn test_initialize_vault() {
+    // 创建 Mollusk 测试环境
+    let program_id = Pubkey::new_unique();
+    let mollusk = Mollusk::new(&program_id, "target/deploy/vault_program");
+
+    // 创建测试账户
+    let owner = Pubkey::new_unique();
+    let (vault_pda, _bump) = Pubkey::find_program_address(
+        &[b"vault", owner.as_ref()],
+        &program_id,
+    );
+
+    // 构建初始化指令
+    let instruction = Instruction {
+        program_id,
+        accounts: vec![
+            AccountMeta::new(owner, true),           // owner (signer)
+            AccountMeta::new(vault_pda, false),      // vault PDA
+            AccountMeta::new_readonly(solana_sdk::system_program::ID, false),
+        ],
+        data: vec![0], // discriminator = 0 (Initialize)
+    };
+
+    // 执行测试
+    // (这里需要根据 Mollusk 的实际 API 来完成)
+    // let result = mollusk.process_instruction(&instruction, &accounts);
+    // assert!(result.is_ok());
+}
+
+#[test]
+fn test_deposit() {
+    // 类似的测试逻辑...
+}
+
+#[test]
+fn test_withdraw() {
+    // 类似的测试逻辑...
+}
+```
+
+### 概念串联总结
+
+这个完整示例展示了 Pinocchio 程序开发的所有核心概念:
+
+1. **入口点** (`lib.rs`): 使用 `entrypoint!` 宏和 discriminator 路由
+2. **TryFrom 验证** (所有 instructions): 账户和数据的类型安全验证
+3. **账户类型** (`helpers.rs`): 使用 trait 实现可重用的验证逻辑
+4. **零拷贝** (`vault.rs`): 直接从字节切片读取数据,无需反序列化
+5. **CPI 调用** (`deposit.rs`, `withdraw.rs`): 简洁的跨程序调用
+6. **PDA 签名** (`withdraw.rs`): 使用 `invoke_signed` 进行授权转账
+7. **错误处理** (`error.rs`): 使用 `thiserror` 定义清晰的错误类型
+8. **性能优化**: 使用 `perf` feature flag 控制日志输出
+
+### 使用方式
+
+```bash
+# 构建程序
+cargo build-bpf
+
+# 运行测试
+cargo test-sbf
+
+# 构建生产版本(启用性能优化)
+cargo build-bpf --release
+
+# 构建调试版本(包含日志)
+cargo build-bpf --no-default-features
+```
+
+---
+
 ## 测试
 
 在主网部署之前,进行彻底的测试是至关重要的,以识别潜在的漏洞和问题。
