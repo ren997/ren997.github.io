@@ -1,5 +1,5 @@
 ---
-title: Rust 文档 - 集合 - String
+title: rust 文档 - 集合 - String
 tags: [rust]
 ---
 

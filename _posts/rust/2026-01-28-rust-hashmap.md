@@ -1,5 +1,5 @@
 ---
-title: Rust 文档 - 集合 - HashMap 哈希映射详解
+title: rust 文档 - 集合 - HashMap 哈希映射详解
 tags: [rust]
 ---
 
