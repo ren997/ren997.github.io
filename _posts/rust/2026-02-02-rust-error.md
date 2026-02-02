@@ -1,6 +1,6 @@
 ---
-title: Rust 错误处理 - panic! 与不可恢复的错误
-tags: [rust, 错误处理]
+title: rust 错误处理 - panic! 与不可恢复的错误
+tags: [rust]
 ---
 
 ## 概述
