@@ -79,7 +79,7 @@ fn largest<T>(list: &[T]) -> T {
 
 #### 带有 Trait Bound 的泛型函数
 
-直接使用泛型可能无法编译,因为并非所有类型都支持比较操作。我们需要添加 trait bound:
+直接使用泛型可能无法编译,因为并非所有类型都支持比较操作。我们需要添加 trait bound,trait我们会在后续讲解:
 
 **文件名: src/main.rs**
 
