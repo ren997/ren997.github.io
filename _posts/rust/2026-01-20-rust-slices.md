@@ -2,8 +2,6 @@
 title: rust文档-切片
 categories: [Rust, 基础]
 tags: [rust]
-sidebar:
-  nav: docs-rust
 ---
 
 

@@ -2,8 +2,6 @@
 title: rust文档-表达式和语句
 categories: [Rust, 基础]
 tags: [rust]
-sidebar:
-  nav: docs-rust
 ---
 
 ## 学习资源

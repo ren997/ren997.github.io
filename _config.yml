@@ -215,6 +215,14 @@ defaults:
       show_subscribe: true
       pageview: true
 
+  ## Rust 文章侧边栏配置（总开关）
+  - scope:
+      path: "_posts/rust"
+    values:
+      sidebar:
+        nav: docs-rust    # 开启侧边栏，使用 docs-rust 导航
+        # nav: false      # 关闭侧边栏（取消上行注释，注释本行即可）
+
 
 ## => Plugins
 ##############################

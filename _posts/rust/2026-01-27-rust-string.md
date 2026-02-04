@@ -2,8 +2,6 @@
 title: rust 文档 - 集合 - String
 categories: [Rust, 集合]
 tags: [rust]
-sidebar:
-  nav: docs-rust
 ---
 
 ## 概述
