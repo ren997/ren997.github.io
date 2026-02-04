@@ -1,0 +1,162 @@
+---
+layout: page
+titles:
+  # @start locale config
+  en      : &EN       Categories
+  en-GB   : *EN
+  en-US   : *EN
+  en-CA   : *EN
+  en-AU   : *EN
+  zh-Hans : &ZH_HANS  分类
+  zh      : *ZH_HANS
+  zh-CN   : *ZH_HANS
+  zh-SG   : *ZH_HANS
+  zh-Hant : &ZH_HANT  分類
+  zh-TW   : *ZH_HANT
+  zh-HK   : *ZH_HANT
+  ko      : &KO       카테고리
+  ko-KR   : *KO
+  fr      : &FR       Catégories
+  fr-BE   : *FR
+  fr-CA   : *FR
+  fr-CH   : *FR
+  fr-FR   : *FR
+  fr-LU   : *FR
+  tr      : &TR       Kategoriler
+  # @end locale config
+---
+
+<div class="layout--categories js-all">
+  {%- include categories.html -%}
+  <div class="js-result layout--archive__result">
+    {%- include article-list.html articles=site.posts type='brief' show_info=true reverse=true group_by='year' -%}
+  </div>
+</div>
+
+<script>
+(function() {
+  var defined = window.defined || function(a) { return typeof a !== 'undefined'; };
+  var defined_then = window.defined_then || function(a, f) { if (defined(a)) { f(a); } };
+  var $$ = window.$$ || function(selector) { return document.querySelectorAll(selector); };
+  var $ = window.$ || function(selector) { return document.querySelector(selector); };
+
+  var categoriesData = {};
+  try {
+    categoriesData = JSON.parse($('#categories-data').textContent || '{}');
+  } catch(e) {
+    console.error('Failed to parse categories data', e);
+  }
+
+  var currentL1 = '';
+  var currentL2 = '';
+
+  // 获取所有文章项
+  function getArticleItems() {
+    return $$('.layout--archive__result .item');
+  }
+
+  // 显示/隐藏二级分类
+  function showLevel2(category1) {
+    var level2Container = $('#categories-level2');
+    var level2List = $('#categories-level2-list');
+
+    if (!category1 || !categoriesData[category1]) {
+      level2Container.classList.add('d-none');
+      return;
+    }
+
+    var subcats = categoriesData[category1].subcategories;
+    var subcatKeys = Object.keys(subcats);
+
+    if (subcatKeys.length === 0) {
+      level2Container.classList.add('d-none');
+      return;
+    }
+
+    // 构建二级分类按钮
+    var html = '<li><button type="button" class="button button--pill category-button category-l2-btn active" data-level="2" data-category="">全部</button></li>';
+
+    subcatKeys.forEach(function(key) {
+      var count = subcats[key];
+      var name = decodeURIComponent(key);
+      html += '<li><button type="button" class="button button--pill category-button category-l2-btn" data-level="2" data-category="' + key + '">' +
+        name + '<div class="category-button__count">' + count + '</div></button></li>';
+    });
+
+    level2List.innerHTML = html;
+    level2Container.classList.remove('d-none');
+
+    // 绑定二级分类点击事件
+    $$('.category-l2-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        $$('.category-l2-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        currentL2 = this.dataset.category;
+        filterArticles();
+      });
+    });
+  }
+
+  // 过滤文章
+  function filterArticles() {
+    var items = getArticleItems();
+    var cat1Decoded = currentL1 ? decodeURIComponent(currentL1) : '';
+    var cat2Decoded = currentL2 ? decodeURIComponent(currentL2) : '';
+
+    items.forEach(function(item) {
+      var link = item.querySelector('a');
+      if (!link) return;
+
+      var href = link.getAttribute('href');
+      var show = true;
+
+      // 获取文章的分类信息（从 data 属性或通过其他方式）
+      var itemCat1 = item.dataset.category1 || '';
+      var itemCat2 = item.dataset.category2 || '';
+
+      if (cat1Decoded && itemCat1 !== cat1Decoded) {
+        show = false;
+      }
+      if (cat2Decoded && itemCat2 !== cat2Decoded) {
+        show = false;
+      }
+
+      item.style.display = show ? '' : 'none';
+    });
+
+    // 隐藏空的年份分组
+    $$('.layout--archive__result h2').forEach(function(h2) {
+      var next = h2.nextElementSibling;
+      var hasVisible = false;
+      while (next && next.tagName !== 'H2') {
+        if (next.classList && next.classList.contains('item') && next.style.display !== 'none') {
+          hasVisible = true;
+          break;
+        }
+        next = next.nextElementSibling;
+      }
+      h2.style.display = hasVisible ? '' : 'none';
+    });
+  }
+
+  // 一级分类点击事件
+  $$('.category-l1-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      $$('.category-l1-btn').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      currentL1 = this.dataset.category;
+      currentL2 = '';
+      showLevel2(currentL1);
+      filterArticles();
+    });
+  });
+
+  // 初始化：默认选中"全部"
+  var allBtn = $('.category-button--all');
+  if (allBtn) {
+    allBtn.classList.add('active');
+  }
+})();
+</script>
+
+{{ content }}

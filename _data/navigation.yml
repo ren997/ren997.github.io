@@ -1,6 +1,32 @@
 header:
   - titles:
       # @start locale config
+      en      : &EN_CAT   Categories
+      en-GB   : *EN_CAT
+      en-US   : *EN_CAT
+      en-CA   : *EN_CAT
+      en-AU   : *EN_CAT
+      zh-Hans : &ZH_HANS_CAT  分类
+      zh      : *ZH_HANS_CAT
+      zh-CN   : *ZH_HANS_CAT
+      zh-SG   : *ZH_HANS_CAT
+      zh-Hant : &ZH_HANT_CAT  分類
+      zh-TW   : *ZH_HANT_CAT
+      zh-HK   : *ZH_HANT_CAT
+      ko      : &KO_CAT       카테고리
+      ko-KR   : *KO_CAT
+      fr      : &FR_CAT       Catégories
+      fr-BE   : *FR_CAT
+      fr-CA   : *FR_CAT
+      fr-CH   : *FR_CAT
+      fr-FR   : *FR_CAT
+      fr-LU   : *FR_CAT
+      tr      : &TR_CAT       Kategoriler
+      # @end locale config
+    url: /categories.html
+
+  - titles:
+      # @start locale config
       en      : &EN       Archive
       en-GB   : *EN
       en-US   : *EN

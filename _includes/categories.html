@@ -1,0 +1,137 @@
+{%- comment -%}
+  二级分类展示组件
+  支持一级分类和二级分类的层级展示
+{%- endcomment -%}
+
+{%- assign _categories_level1 = "" | split: "" -%}
+{%- assign _categories_level2 = "" | split: "" -%}
+
+{%- for post in site.posts -%}
+  {%- if post.categories.size > 0 -%}
+    {%- assign _cat1 = post.categories[0] -%}
+    {%- unless _categories_level1 contains _cat1 -%}
+      {%- assign _categories_level1 = _categories_level1 | push: _cat1 -%}
+    {%- endunless -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- assign _categories_level1 = _categories_level1 | sort -%}
+
+<div class="site-categories js-categories">
+  <!-- 一级分类 -->
+  <div class="categories-level1">
+    <span class="categories-label">分类：</span>
+    <ul class="menu">
+      <li>
+        <button type="button" class="button button--secondary button--pill category-button category-button--all category-l1-btn" data-level="1" data-category="">
+          全部<div class="category-button__count">{{ site.posts | size }}</div>
+        </button>
+      </li>
+      {%- for _cat1 in _categories_level1 -%}
+        {%- assign _cat1_count = 0 -%}
+        {%- for post in site.posts -%}
+          {%- if post.categories[0] == _cat1 -%}
+            {%- assign _cat1_count = _cat1_count | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+        <li>
+          <button type="button" class="button button--pill category-button category-l1-btn" data-level="1" data-category="{{ _cat1 | url_encode }}">
+            {{ _cat1 }}<div class="category-button__count">{{ _cat1_count }}</div>
+          </button>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+
+  <!-- 二级分类容器 -->
+  <div class="categories-level2 d-none" id="categories-level2">
+    <span class="categories-label">子分类：</span>
+    <ul class="menu" id="categories-level2-list">
+      <!-- 由 JS 动态填充 -->
+    </ul>
+  </div>
+</div>
+
+<!-- 二级分类数据 -->
+<script type="application/json" id="categories-data">
+{
+  {%- for _cat1 in _categories_level1 -%}
+    "{{ _cat1 | url_encode }}": {
+      "subcategories": {
+        {%- assign _subcats = "" | split: "" -%}
+        {%- for post in site.posts -%}
+          {%- if post.categories[0] == _cat1 and post.categories.size > 1 -%}
+            {%- assign _cat2 = post.categories[1] -%}
+            {%- unless _subcats contains _cat2 -%}
+              {%- assign _subcats = _subcats | push: _cat2 -%}
+            {%- endunless -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- assign _subcats = _subcats | sort -%}
+        {%- for _cat2 in _subcats -%}
+          {%- assign _cat2_count = 0 -%}
+          {%- for post in site.posts -%}
+            {%- if post.categories[0] == _cat1 and post.categories[1] == _cat2 -%}
+              {%- assign _cat2_count = _cat2_count | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+          "{{ _cat2 | url_encode }}": {{ _cat2_count }}{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      }
+    }{% unless forloop.last %},{% endunless %}
+  {%- endfor -%}
+}
+</script>
+
+<style>
+.site-categories {
+  margin-bottom: 1.5rem;
+}
+.categories-level1,
+.categories-level2 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.categories-label {
+  font-weight: 600;
+  color: #666;
+  margin-right: 0.5rem;
+}
+.site-categories .menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.category-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.category-button.active {
+  background-color: #f77a52;
+  color: #fff;
+  border-color: #f77a52;
+}
+.category-button__count {
+  background: rgba(0,0,0,0.1);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  font-size: 0.8em;
+  margin-left: 0.25rem;
+}
+.category-button.active .category-button__count {
+  background: rgba(255,255,255,0.3);
+}
+.categories-level2 {
+  padding-left: 1rem;
+  border-left: 3px solid #f77a52;
+}
+</style>
