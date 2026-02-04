@@ -76,3 +76,30 @@ header:
 #      tr      : &TR       Hakkında
 #      # @end locale config
 #    url: /about.html
+
+# Rust 教程侧边栏导航
+docs-rust:
+  - title: 基础
+    children:
+      - title: 表达式和语句
+        url: /2026/01/13/rust-expressions-and-statements.html
+      - title: 切片
+        url: /2026/01/20/rust-slices.html
+      - title: 方法语法和枚举
+        url: /2026/01/20/rust-methods-and-enums.html
+      - title: 包、Crate 和模块
+        url: /2026/01/20/rust-packages-crates-modules.html
+  - title: 集合
+    children:
+      - title: Vector 动态数组
+        url: /2026/01/27/rust-vec.html
+      - title: String 字符串
+        url: /2026/01/27/rust-string.html
+      - title: HashMap 哈希映射
+        url: /2026/01/28/rust-hashmap.html
+  - title: 进阶
+    children:
+      - title: 错误处理
+        url: /2026/02/02/rust-error.html
+      - title: 泛型、Trait 与生命周期
+        url: /2026/02/03/rust-generics-traits-lifetimes.html

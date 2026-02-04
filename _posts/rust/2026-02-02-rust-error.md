@@ -1,6 +1,9 @@
 ---
 title: rust 错误处理 - panic! 与不可恢复的错误
+categories: [Rust, 进阶]
 tags: [rust]
+sidebar:
+  nav: docs-rust
 ---
 
 ## 概述
