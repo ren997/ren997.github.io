@@ -1,6 +1,6 @@
 ---
 title: rust文档-包、Crate 和模块管理详解
-categories: [Rust, 基础, 模块系统]
+categories: [Rust, 基础]
 tags: [rust]
 ---
 
