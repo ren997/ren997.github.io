@@ -1,6 +1,6 @@
 ---
 title: rust 文档 - 集合 - HashMap 哈希映射详解
-categories: [Rust, 集合]
+categories: [Rust, 集合, HashMap]
 tags: [rust]
 ---
 

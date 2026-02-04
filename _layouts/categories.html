@@ -49,6 +49,7 @@ titles:
 
   var currentL1 = '';
   var currentL2 = '';
+  var currentL3 = '';
 
   // 获取所有文章项
   function getArticleItems() {
@@ -59,9 +60,11 @@ titles:
   function showLevel2(category1) {
     var level2Container = $('#categories-level2');
     var level2List = $('#categories-level2-list');
+    var level3Container = $('#categories-level3');
 
     if (!category1 || !categoriesData[category1]) {
       level2Container.classList.add('d-none');
+      level3Container.classList.add('d-none');
       return;
     }
 
@@ -70,6 +73,7 @@ titles:
 
     if (subcatKeys.length === 0) {
       level2Container.classList.add('d-none');
+      level3Container.classList.add('d-none');
       return;
     }
 
@@ -77,7 +81,7 @@ titles:
     var html = '<li><button type="button" class="button button--pill category-button category-l2-btn active" data-level="2" data-category="">全部</button></li>';
 
     subcatKeys.forEach(function(key) {
-      var count = subcats[key];
+      var count = subcats[key].count || 0;
       var name = decodeURIComponent(key);
       html += '<li><button type="button" class="button button--pill category-button category-l2-btn" data-level="2" data-category="' + key + '">' +
         name + '<div class="category-button__count">' + count + '</div></button></li>';
@@ -85,6 +89,7 @@ titles:
 
     level2List.innerHTML = html;
     level2Container.classList.remove('d-none');
+    level3Container.classList.add('d-none');
 
     // 绑定二级分类点击事件
     $$('.category-l2-btn').forEach(function(btn) {
@@ -92,6 +97,50 @@ titles:
         $$('.category-l2-btn').forEach(function(b) { b.classList.remove('active'); });
         this.classList.add('active');
         currentL2 = this.dataset.category;
+        currentL3 = '';
+        showLevel3(category1, currentL2);
+        filterArticles();
+      });
+    });
+  }
+
+  // 显示/隐藏三级分类
+  function showLevel3(category1, category2) {
+    var level3Container = $('#categories-level3');
+    var level3List = $('#categories-level3-list');
+
+    if (!category1 || !category2 || !categoriesData[category1] || !categoriesData[category1].subcategories[category2]) {
+      level3Container.classList.add('d-none');
+      return;
+    }
+
+    var subcats = categoriesData[category1].subcategories[category2].subcategories;
+    var subcatKeys = Object.keys(subcats);
+
+    if (subcatKeys.length === 0) {
+      level3Container.classList.add('d-none');
+      return;
+    }
+
+    // 构建三级分类按钮
+    var html = '<li><button type="button" class="button button--pill category-button category-l3-btn active" data-level="3" data-category="">全部</button></li>';
+
+    subcatKeys.forEach(function(key) {
+      var count = subcats[key];
+      var name = decodeURIComponent(key);
+      html += '<li><button type="button" class="button button--pill category-button category-l3-btn" data-level="3" data-category="' + key + '">' +
+        name + '<div class="category-button__count">' + count + '</div></button></li>';
+    });
+
+    level3List.innerHTML = html;
+    level3Container.classList.remove('d-none');
+
+    // 绑定三级分类点击事件
+    $$('.category-l3-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        $$('.category-l3-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        currentL3 = this.dataset.category;
         filterArticles();
       });
     });
@@ -102,6 +151,7 @@ titles:
     var items = getArticleItems();
     var cat1Decoded = currentL1 ? decodeURIComponent(currentL1) : '';
     var cat2Decoded = currentL2 ? decodeURIComponent(currentL2) : '';
+    var cat3Decoded = currentL3 ? decodeURIComponent(currentL3) : '';
 
     items.forEach(function(item) {
       var link = item.querySelector('a');
@@ -113,11 +163,15 @@ titles:
       // 获取文章的分类信息（从 data 属性或通过其他方式）
       var itemCat1 = item.dataset.category1 || '';
       var itemCat2 = item.dataset.category2 || '';
+      var itemCat3 = item.dataset.category3 || '';
 
       if (cat1Decoded && itemCat1 !== cat1Decoded) {
         show = false;
       }
       if (cat2Decoded && itemCat2 !== cat2Decoded) {
+        show = false;
+      }
+      if (cat3Decoded && itemCat3 !== cat3Decoded) {
         show = false;
       }
 
@@ -146,6 +200,7 @@ titles:
       this.classList.add('active');
       currentL1 = this.dataset.category;
       currentL2 = '';
+      currentL3 = '';
       showLevel2(currentL1);
       filterArticles();
     });

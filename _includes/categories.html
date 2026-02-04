@@ -1,10 +1,11 @@
 {%- comment -%}
-  二级分类展示组件
-  支持一级分类和二级分类的层级展示
+  三级分类展示组件
+  支持一级分类、二级分类和三级分类的层级展示
 {%- endcomment -%}
 
 {%- assign _categories_level1 = "" | split: "" -%}
 {%- assign _categories_level2 = "" | split: "" -%}
+{%- assign _categories_level3 = "" | split: "" -%}
 
 {%- for post in site.posts -%}
   {%- if post.categories.size > 0 -%}
@@ -50,9 +51,17 @@
       <!-- 由 JS 动态填充 -->
     </ul>
   </div>
+
+  <!-- 三级分类容器 -->
+  <div class="categories-level3 d-none" id="categories-level3">
+    <span class="categories-label">三级分类：</span>
+    <ul class="menu" id="categories-level3-list">
+      <!-- 由 JS 动态填充 -->
+    </ul>
+  </div>
 </div>
 
-<!-- 二级分类数据 -->
+<!-- 分类数据 -->
 <script type="application/json" id="categories-data">
 {
   {%- for _cat1 in _categories_level1 -%}
@@ -70,12 +79,33 @@
         {%- assign _subcats = _subcats | sort -%}
         {%- for _cat2 in _subcats -%}
           {%- assign _cat2_count = 0 -%}
+          {%- assign _cat3_data = "" | split: "" -%}
           {%- for post in site.posts -%}
             {%- if post.categories[0] == _cat1 and post.categories[1] == _cat2 -%}
               {%- assign _cat2_count = _cat2_count | plus: 1 -%}
+              {%- if post.categories.size > 2 -%}
+                {%- assign _cat3 = post.categories[2] -%}
+                {%- unless _cat3_data contains _cat3 -%}
+                  {%- assign _cat3_data = _cat3_data | push: _cat3 -%}
+                {%- endunless -%}
+              {%- endif -%}
             {%- endif -%}
           {%- endfor -%}
-          "{{ _cat2 | url_encode }}": {{ _cat2_count }}{% unless forloop.last %},{% endunless %}
+          "{{ _cat2 | url_encode }}": {
+            "count": {{ _cat2_count }},
+            "subcategories": {
+              {%- assign _cat3_data = _cat3_data | sort -%}
+              {%- for _cat3 in _cat3_data -%}
+                {%- assign _cat3_count = 0 -%}
+                {%- for post in site.posts -%}
+                  {%- if post.categories[0] == _cat1 and post.categories[1] == _cat2 and post.categories[2] == _cat3 -%}
+                    {%- assign _cat3_count = _cat3_count | plus: 1 -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                "{{ _cat3 | url_encode }}": {{ _cat3_count }}{% unless forloop.last %},{% endunless %}
+              {%- endfor -%}
+            }
+          }{% unless forloop.last %},{% endunless %}
         {%- endfor -%}
       }
     }{% unless forloop.last %},{% endunless %}
@@ -133,5 +163,9 @@
 .categories-level2 {
   padding-left: 1rem;
   border-left: 3px solid #f77a52;
+}
+.categories-level3 {
+  padding-left: 1rem;
+  border-left: 3px solid #5a9;
 }
 </style>

@@ -1,6 +1,6 @@
 ---
 title: rust 文档 - 集合 - String
-categories: [Rust, 集合]
+categories: [Rust, 集合, String]
 tags: [rust]
 ---
 

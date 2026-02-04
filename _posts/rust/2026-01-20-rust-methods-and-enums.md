@@ -1,6 +1,6 @@
 ---
 title: rust文档-方法语法和枚举
-categories: [Rust, 基础]
+categories: [Rust, 基础, 方法与枚举]
 tags: [rust]
 ---
 

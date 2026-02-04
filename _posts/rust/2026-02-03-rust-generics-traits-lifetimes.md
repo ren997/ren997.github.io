@@ -1,6 +1,6 @@
 ---
 title: Rust 泛型、Trait 与生命周期
-categories: [Rust, 进阶]
+categories: [Rust, 进阶, 泛型与Trait]
 tags: [rust]
 ---
 

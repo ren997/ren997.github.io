@@ -1,6 +1,6 @@
 ---
 title: rust文档-切片
-categories: [Rust, 基础]
+categories: [Rust, 基础, 切片]
 tags: [rust]
 ---
 

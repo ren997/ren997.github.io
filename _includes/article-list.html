@@ -101,7 +101,8 @@
       {%- include snippets/get-locale-string.html key='ARTICLE_LIST_DATE_FORMAT' -%}
       {%- assign _cat1 = _article.categories[0] | default: '' -%}
       {%- assign _cat2 = _article.categories[1] | default: '' -%}
-      <li class="item" itemscope itemtype="http://schema.org/BlogPosting" data-tags="{{ _tags }}" data-category1="{{ _cat1 }}" data-category2="{{ _cat2 }}">
+      {%- assign _cat3 = _article.categories[2] | default: '' -%}
+      <li class="item" itemscope itemtype="http://schema.org/BlogPosting" data-tags="{{ _tags }}" data-category1="{{ _cat1 }}" data-category2="{{ _cat2 }}" data-category3="{{ _cat3 }}">
         <div class="item__content">
           {%- if include.show_info -%}
             <span class="item__meta">{{ _article.date | date: __return }}</span>
