@@ -1,5 +1,6 @@
 ---
 title: 第六节-SPL Token 介绍以及在主网发行代币
+categories: [Solana, 基础]
 tags: [Solana]
 ---
 

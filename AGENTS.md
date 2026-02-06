@@ -20,15 +20,15 @@ npm run build
 
 # Serve locally (default)
 npm run serve
-# Equivalent: bundle exec jekyll serve -H 0.0.0.0 -t
+# Equivalent: bundle exec jekyll serve -H 0.0.0.0
 
 # Development mode
 npm run dev
-# Uses config: ./_config.dev.yml
+# Uses config: ./docs/_config.dev.yml
 
 # Demo development mode
 npm run demo-dev
-# Uses config: ./_docs/_config.yml
+# Uses config: ./docs/_config.yml
 
 # Demo beta mode
 npm run demo-beta

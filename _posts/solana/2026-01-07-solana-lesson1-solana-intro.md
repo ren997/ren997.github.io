@@ -1,5 +1,6 @@
 ---
 title: 第一节-Solana 介绍
+categories: [Solana, 基础]
 tags: [Solana]
 ---
 

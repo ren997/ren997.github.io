@@ -1,5 +1,6 @@
 ---
 title: 第五节-使用 Anchor 重写简单链上数据存储程序的代码
+categories: [Solana, 基础]
 tags: [Solana]
 ---
 

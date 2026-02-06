@@ -1,5 +1,6 @@
 ---
 title: 第三节-Solana程序开发入门-简单链上数据存储程序
+categories: [Solana, 基础]
 tags: [Solana]
 ---
 

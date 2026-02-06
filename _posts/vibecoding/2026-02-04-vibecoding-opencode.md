@@ -17,7 +17,7 @@ tags: [opencode, AI编程, 教程]
 1. 访问Node.js官网，下载对应操作系统的安装包并完成安装；
 2. 打开终端窗口，执行以下安装命令：
 ```bash
-npm install -g opencode  # 复制该npm命令粘贴到终端，回车执行
+npm i -g opencode-ai@latest  # 复制该npm命令粘贴到终端，回车执行
 ```
 3. 安装完成后，启动命令：
 ```bash

@@ -1,5 +1,6 @@
 ---
 title: 第二节-Solana的代币和NFT
+categories: [Solana, 基础]
 tags: [Solana]
 ---
 

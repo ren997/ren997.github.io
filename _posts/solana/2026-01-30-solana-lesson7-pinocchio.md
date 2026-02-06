@@ -1,5 +1,6 @@
 ---
 title: 第七节 - Pinocchio 入门
+categories: [Solana, 基础]
 tags: [Solana]
 ---
 
