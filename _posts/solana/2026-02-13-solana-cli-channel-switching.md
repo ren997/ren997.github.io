@@ -78,6 +78,14 @@ curl -sSfL https://release.anza.xyz/beta/install | sh
 curl -sSfL https://release.anza.xyz/edge/install | sh
 ```
 
+### 方式二：使用 agave-install init 切换通道
+
+```bash
+agave-install init stable
+agave-install init beta
+agave-install init edge
+```
+
 切完后统一做一次更新和验证：
 
 ```bash
