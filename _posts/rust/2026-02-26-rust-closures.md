@@ -411,6 +411,30 @@ error[E0434]: can't capture dynamic environment in a fn item; use the || { ...
 
 如果希望强制闭包获取其使用的环境值的**所有权**，可以在参数列表前使用 `move` 关键字。这在将闭包传递给新线程以便将数据移动到新线程中时最为实用。
 
+### 单线程场景：不需要 move
+
+在同一线程中，闭包只需**不可变借用**环境变量即可，不需要使用 `move`：
+
+**文件名: src/main.rs**
+
+```rust
+fn main() {
+    let x = vec![1, 2, 3];
+
+    let equal_to_x = |z| z == x; // 不可变借用 x，无需 move
+
+    let y = vec![1, 2, 3];
+
+    assert!(equal_to_x(y)); // ✅ 可以编译运行
+
+    println!("x 仍然可用: {:?}", x); // ✅ x 未被移走，仍可使用
+}
+```
+
+### 演示 move 导致所有权转移
+
+下面的例子刻意使用 `move`，并在之后继续访问 `x`，以展示 `move` 的所有权转移效果：
+
 **文件名: src/main.rs**（这些代码不能编译！）
 
 ```rust
@@ -444,6 +468,54 @@ error[E0382]: use of moved value: `x`
 ```
 
 去掉 `println!` 即可修复问题。
+
+### 多线程场景：必须使用 move
+
+`move` 真正**必须使用**的场景是多线程。新线程的生命周期不确定，可能超过主线程，若闭包只是借用外部变量，主线程结束后变量被销毁，新线程访问就会产生**悬垂引用**，编译器会直接拒绝：
+
+**文件名: src/main.rs**（这些代码不能编译！）
+
+```rust
+use std::thread;
+
+fn main() {
+    let x = vec![1, 2, 3];
+
+    // 错误：编译器无法保证 x 在新线程执行期间始终有效
+    let handle = thread::spawn(|| {
+        println!("在新线程中使用 x: {:?}", x);
+    });
+
+    handle.join().unwrap();
+}
+```
+
+加上 `move`，将 `x` 的所有权转移进新线程，问题解决：
+
+**文件名: src/main.rs**
+
+```rust
+use std::thread;
+
+fn main() {
+    let x = vec![1, 2, 3];
+
+    // ✅ move 将 x 的所有权转移进新线程，新线程独立拥有 x
+    let handle = thread::spawn(move || {
+        println!("在新线程中使用 x: {:?}", x);
+    });
+
+    // println!("{:?}", x); // 此处不可再使用 x，所有权已转移
+
+    handle.join().unwrap();
+}
+```
+
+| 场景 | 是否需要 move |
+|---|---|
+| 同一线程，只读变量 | ❌ 不可变借用即可 |
+| 同一线程，修改变量 | ❌ 可变借用即可 |
+| 传给新线程 | ✅ 必须 move，生命周期不确定 |
 
 ---
 
