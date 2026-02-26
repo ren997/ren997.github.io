@@ -236,6 +236,22 @@ error[E0308]: mismatched types
 
 > **注意**：函数也都实现了这三个 `Fn` trait。如果不需要捕获环境中的值，可以使用函数而不是闭包。
 
+**为什么实现了 `Fn` 就一定实现了 `FnMut`？**
+
+这三个 trait 描述的是**调用者需要对闭包持有什么访问权限**：
+
+| Trait | 调用者需要持有 |
+|---|---|
+| `FnOnce` | 所有权（`self`） |
+| `FnMut` | 可变借用（`&mut self`） |
+| `Fn` | 不可变借用（`&self`） |
+
+`Fn` 是最严格的约束——一个用 `&self` 就能调用的闭包，给它 `&mut self` 当然也没问题；反之则不然。因此实现了 `Fn` 的闭包，一定同时实现了 `FnMut` 和 `FnOnce`，而 `FnMut` 的闭包不一定实现 `Fn`。
+
+```
+FnOnce ⊇ FnMut ⊇ Fn
+```
+
 ### 定义 Cacher 结构体
 
 **文件名: src/main.rs**
@@ -410,6 +426,76 @@ error[E0434]: can't capture dynamic environment in a fn item; use the || { ...
 ### move 关键字
 
 如果希望强制闭包获取其使用的环境值的**所有权**，可以在参数列表前使用 `move` 关键字。这在将闭包传递给新线程以便将数据移动到新线程中时最为实用。
+
+### 示例一：不可变借用（Fn）
+
+闭包只**读取**外部变量，编译器推断为 `Fn`：
+
+**文件名: src/main.rs**
+
+```rust
+fn main() {
+    let x = 4;
+
+    let equal_to_x = |z| z == x; // 不可变借用 x
+
+    let y = 4;
+    assert!(equal_to_x(y)); // ✅ 可以编译运行
+    println!("x 仍然可用: {}", x); // ✅ x 未被借走所有权，仍可使用
+}
+```
+
+### 示例二：可变借用（FnMut）
+
+闭包**修改**外部变量，编译器推断为 `FnMut`：
+
+**文件名: src/main.rs**
+
+```rust
+fn main() {
+    let mut count = 0;
+
+    let mut increment = || {
+        count += 1; // 可变借用 count
+        println!("count = {}", count);
+    };
+
+    increment(); // count = 1
+    increment(); // count = 2
+    increment(); // count = 3
+
+    // 注意：在 increment 的借用作用域结束前，不能再使用 count
+    // 以下代码若移到最后一次调用之后则可以编译：
+    println!("最终 count = {}", count); // ✅ 借用已结束，可以访问
+}
+```
+
+> **注意**：声明闭包变量时需要加 `mut`（`let mut increment`），因为调用闭包会改变其内部捕获的状态。
+
+### 示例三：获取所有权（FnOnce）
+
+闭包**消费**（移走所有权）外部变量，只能被调用一次，编译器推断为 `FnOnce`：
+
+**文件名: src/main.rs**
+
+```rust
+fn main() {
+    let s = String::from("hello");
+
+    let consume_s = || {
+        // drop 会取得 s 的所有权并销毁它
+        drop(s); // s 的所有权在此被消费
+    };
+
+    consume_s(); // ✅ 第一次调用成功
+
+    // consume_s(); // ❌ 编译错误！s 已被消费，无法再次调用
+}
+```
+
+> **提示**：大多数情况下编译器会自动推断最宽松的 trait，无需手动指定。若不确定应使用哪个，从 `Fn` 开始，编译器会告诉你是否需要 `FnMut` 或 `FnOnce`。
+
+---
 
 ### 单线程场景：不需要 move
 
