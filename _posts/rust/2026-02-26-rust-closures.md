@@ -515,7 +515,7 @@ println!("{:?}", x);
 
 ---
 
-<details>
+<details markdown="1">
 <summary>📖 点击查看答案</summary>
 
 **第 1 题答案**
