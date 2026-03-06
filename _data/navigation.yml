@@ -79,7 +79,7 @@ header:
 
 # Rust 教程侧边栏导航
 docs-rust:
-  - title: 基础
+  - title: 入门理解
     children:
       - title: 表达式和语句
         url: /2026/01/13/rust-expressions-and-statements.html
@@ -87,8 +87,6 @@ docs-rust:
         url: /2026/01/20/rust-slices.html
       - title: 方法语法和枚举
         url: /2026/01/20/rust-methods-and-enums.html
-      - title: 包、Crate 和模块
-        url: /2026/01/20/rust-packages-crates-modules.html
   - title: 集合
     children:
       - title: Vector 动态数组
@@ -97,9 +95,27 @@ docs-rust:
         url: /2026/01/27/rust-string.html
       - title: HashMap 哈希映射
         url: /2026/01/28/rust-hashmap.html
-  - title: 进阶
+  - title: 模块与工程组织
+    children:
+      - title: 包、Crate 和模块
+        url: /2026/01/20/rust-packages-crates-modules.html
+  - title: 错误处理与命令行
     children:
       - title: 错误处理
         url: /2026/02/02/rust-error.html
-      - title: 泛型、Trait 与生命周期
-        url: /2026/02/03/rust-generics-traits-lifetimes.html
+      - title: 将错误信息输出到标准错误
+        url: /2026/02/24/rust-writing-to-stderr.html
+  - title: 抽象能力
+    children:
+      - title: 泛型
+        url: /2026/02/03/rust-generics.html
+      - title: Trait
+        url: /2026/02/03/rust-traits.html
+      - title: 生命周期
+        url: /2026/02/03/rust-lifetimes.html
+  - title: 函数式风格
+    children:
+      - title: 闭包
+        url: /2026/02/26/rust-closures.html
+      - title: 迭代器
+        url: /2026/03/06/rust-iterators.html

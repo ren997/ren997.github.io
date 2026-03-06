@@ -1,6 +1,6 @@
 ---
 title: rust文档-表达式和语句
-categories: [Rust, 基础]
+categories: [Rust, 所有权与借用]
 tags: [rust]
 ---
 
