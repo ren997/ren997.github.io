@@ -6,16 +6,16 @@ header:
       en-US   : *EN_CAT
       en-CA   : *EN_CAT
       en-AU   : *EN_CAT
-      zh-Hans : &ZH_HANS_CAT  分类
+      zh-Hans : &ZH_HANS_CAT  鍒嗙被
       zh      : *ZH_HANS_CAT
       zh-CN   : *ZH_HANS_CAT
       zh-SG   : *ZH_HANS_CAT
-      zh-Hant : &ZH_HANT_CAT  分類
+      zh-Hant : &ZH_HANT_CAT  鍒嗛
       zh-TW   : *ZH_HANT_CAT
       zh-HK   : *ZH_HANT_CAT
-      ko      : &KO_CAT       카테고리
+      ko      : &KO_CAT       旃错厡瓿犽Μ
       ko-KR   : *KO_CAT
-      fr      : &FR_CAT       Catégories
+      fr      : &FR_CAT       Cat茅gories
       fr-BE   : *FR_CAT
       fr-CA   : *FR_CAT
       fr-CH   : *FR_CAT
@@ -32,14 +32,14 @@ header:
       en-US   : *EN
       en-CA   : *EN
       en-AU   : *EN
-      zh-Hans : &ZH_HANS  归档
+      zh-Hans : &ZH_HANS  褰掓。
       zh      : *ZH_HANS
       zh-CN   : *ZH_HANS
       zh-SG   : *ZH_HANS
-      zh-Hant : &ZH_HANT  歸檔
+      zh-Hant : &ZH_HANT  姝告獢
       zh-TW   : *ZH_HANT
       zh-HK   : *ZH_HANT
-      ko      : &KO       아카이브
+      ko      : &KO       鞎勳勾鞚措笇
       ko-KR   : *KO
       fr      : &FR       Archives
       fr-BE   : *FR
@@ -47,7 +47,7 @@ header:
       fr-CH   : *FR
       fr-FR   : *FR
       fr-LU   : *FR
-      tr      : &TR       Arşivdekiler
+      tr      : &TR       Ar艧ivdekiler
       # @end locale config
     url: /archive.html
 
@@ -58,64 +58,22 @@ header:
 #      en-US   : *EN
 #      en-CA   : *EN
 #      en-AU   : *EN
-#      zh-Hans : &ZH_HANS  关于
+#      zh-Hans : &ZH_HANS  鍏充簬
 #      zh      : *ZH_HANS
 #      zh-CN   : *ZH_HANS
 #      zh-SG   : *ZH_HANS
-#      zh-Hant : &ZH_HANT  關於
+#      zh-Hant : &ZH_HANT  闂滄柤
 #      zh-TW   : *ZH_HANT
 #      zh-HK   : *ZH_HANT
-#      ko      : &KO       소개
+#      ko      : &KO       靻岅皽
 #      ko-KR   : *KO
-#      fr      : &FR       À propos
+#      fr      : &FR       脌 propos
 #      fr-BE   : *FR
 #      fr-CA   : *FR
 #      fr-CH   : *FR
 #      fr-FR   : *FR
 #      fr-LU   : *FR
-#      tr      : &TR       Hakkında
+#      tr      : &TR       Hakk谋nda
 #      # @end locale config
 #    url: /about.html
 
-# Rust 教程侧边栏导航
-docs-rust:
-  - title: 入门理解
-    children:
-      - title: 表达式和语句
-        url: /2026/01/13/rust-expressions-and-statements.html
-      - title: 切片
-        url: /2026/01/20/rust-slices.html
-      - title: 方法语法和枚举
-        url: /2026/01/20/rust-methods-and-enums.html
-  - title: 集合
-    children:
-      - title: Vector 动态数组
-        url: /2026/01/27/rust-vec.html
-      - title: String 字符串
-        url: /2026/01/27/rust-string.html
-      - title: HashMap 哈希映射
-        url: /2026/01/28/rust-hashmap.html
-  - title: 模块与工程组织
-    children:
-      - title: 包、Crate 和模块
-        url: /2026/01/20/rust-packages-crates-modules.html
-  - title: 错误处理与命令行
-    children:
-      - title: 错误处理
-        url: /2026/02/02/rust-error.html
-      - title: 将错误信息输出到标准错误
-        url: /2026/02/24/rust-writing-to-stderr.html
-  - title: 抽象能力
-    children:
-      - title: 泛型
-        url: /2026/02/03/rust-generics.html
-      - title: Trait
-        url: /2026/02/03/rust-traits.html
-      - title: 生命周期
-        url: /2026/02/03/rust-lifetimes.html
-  - title: 函数式风格
-    children:
-      - title: 闭包
-        url: /2026/02/26/rust-closures.html
-      - title: 迭代器
-        url: /2026/03/06/rust-iterators.html

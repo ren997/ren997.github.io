@@ -219,6 +219,7 @@ defaults:
   - scope:
       path: "_posts/rust"
     values:
+      permalink: /rust/:year/:month/:day/:title.html
       sidebar:
         nav: docs-rust    # 开启侧边栏，使用 docs-rust 导航
 #         nav: false      # 关闭侧边栏（取消上行注释，注释本行即可）

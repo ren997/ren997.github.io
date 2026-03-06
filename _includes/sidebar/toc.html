@@ -1,25 +1,49 @@
 {%- if page.sidebar.nav -%}
   <div class="sidebar-toc">
-    {%- assign _sidebar_nav = site.data.navigation[page.sidebar.nav] -%}
-    {%- if _sidebar_nav -%}
-    <ul class="toc toc--navigator">
-      {%- for _item in _sidebar_nav -%}
-        <li class="toc-h1">{{ _item.title }}</li>
-        {%- if _item.children -%}
-          {%- for _child in _item.children -%}
-            {%- include snippets/get-nav-url.html path=_child.url -%}
-            {%- assign _nav_url = __return -%}
-            {%- include snippets/get-nav-url.html path=page.url -%}
-            {%- assign _page_url = __return -%}
-            {%- if _nav_url == _page_url -%}
-              <li class="toc-h2 active"><a href="{{ _nav_url }}">{{ _child.title }}</a></li>
-            {%- else -%}
-              <li class="toc-h2"><a href="{{ _nav_url }}">{{ _child.title }}</a></li>
-            {%- endif -%}
-          {%- endfor -%}
-        {%- endif -%}
-      {%- endfor -%}
+    {%- if page.sidebar.nav == 'docs-rust' and page.path contains '_posts/rust/' -%}
+      {%- assign _rust_posts = site.posts | where_exp: 'post', 'post.path contains "_posts/rust/"' | sort: 'url' -%}
+      {%- assign _rust_groups = '所有权与借用|集合|模块系统|错误处理|CLI 与 I/O|泛型 Trait 与生命周期|迭代器与闭包' | split: '|' -%}
+      <ul class="toc toc--navigator">
+        {%- for _group in _rust_groups -%}
+          {%- assign _group_posts = _rust_posts | where_exp: 'post', 'post.categories[1] == _group' -%}
+          {%- if _group_posts.size > 0 -%}
+            <li class="toc-h1">{{ _group }}</li>
+            {%- for _post in _group_posts -%}
+              {%- include snippets/get-nav-url.html path=_post.url -%}
+              {%- assign _nav_url = __return -%}
+              {%- include snippets/get-nav-url.html path=page.url -%}
+              {%- assign _page_url = __return -%}
+              {%- if _nav_url == _page_url -%}
+                <li class="toc-h2 active"><a href="{{ _nav_url }}">{{ _post.title }}</a></li>
+              {%- else -%}
+                <li class="toc-h2"><a href="{{ _nav_url }}">{{ _post.title }}</a></li>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+        {%- endfor -%}
       </ul>
+    {%- else -%}
+      {%- assign _sidebar_nav = site.data.navigation[page.sidebar.nav] -%}
+      {%- if _sidebar_nav -%}
+      <ul class="toc toc--navigator">
+        {%- for _item in _sidebar_nav -%}
+          <li class="toc-h1">{{ _item.title }}</li>
+          {%- if _item.children -%}
+            {%- for _child in _item.children -%}
+              {%- include snippets/get-nav-url.html path=_child.url -%}
+              {%- assign _nav_url = __return -%}
+              {%- include snippets/get-nav-url.html path=page.url -%}
+              {%- assign _page_url = __return -%}
+              {%- if _nav_url == _page_url -%}
+                <li class="toc-h2 active"><a href="{{ _nav_url }}">{{ _child.title }}</a></li>
+              {%- else -%}
+                <li class="toc-h2"><a href="{{ _nav_url }}">{{ _child.title }}</a></li>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+      {%- endif -%}
     {%- endif -%}
   </div>
 {%- endif -%}
