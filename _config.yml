@@ -19,7 +19,7 @@
 text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
 highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
 url: https://ren997.github.io
-baseurl: "/solana_blog"               # 用户主页应为空字符串
+baseurl: ""               # 用户主页应为空字符串
 title: ren的solana博客
 description: > # this means to ignore newlines until "Language & timezone"
   记录一些遇到的问题
