@@ -1,6 +1,6 @@
 ---
 title: Rust 闭包：可以捕获环境的匿名函数
-categories: [Rust, 进阶]
+categories: [Rust, 迭代器和闭包]
 tags: [rust]
 ---
 
