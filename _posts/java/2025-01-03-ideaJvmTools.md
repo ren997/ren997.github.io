@@ -1,7 +1,8 @@
 ---
 title: IntelliJ IDEA使用JVM远程调试
+categories: [Java, JVM]
 tags: 工具
-published: false
+#published: false
 ---
 
 # IntelliJ IDEA使用JVM远程调试
