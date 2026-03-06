@@ -27,10 +27,14 @@ layout: base
   source0=layout.comment source1=page.comment -%}
 {%- assign _comment = __return -%}
 
+{%- assign _has_sidebar = false -%}
+{%- if page.sidebar or page.series -%}
+  {%- assign _has_sidebar = true -%}
+{%- endif -%}
 
 {%- assign _article_header_excerpt_truncate = include.excerpt_truncate | default: 200 -%}
 
-{%- if page.sidebar -%}
+{%- if _has_sidebar -%}
 <div class="layout--page layout--page--sidebar clearfix js-page-root">
   <div class="page__mask d-print-none js-page-mask js-sidebar-hide"></div>
   <div class="page__viewport">
@@ -54,7 +58,7 @@ layout: base
     {%- if _page_mode == 'immersive' -%}
       {%- assign _page_main_class = _page_main_class | append: ' page__main--immersive' -%}
     {%- endif -%}
-    {%- unless page.sidebar -%}
+    {%- unless _has_sidebar -%}
       {%- assign _page_main_class = _page_main_class | append: ' page__viewport' -%}
     {%- endunless -%}
     {%- if _footer == false -%}
@@ -228,7 +232,7 @@ layout: base
         {%- endif -%}
       </div>
     </div> {%- comment -%} end page__main {%- endcomment -%}
-{%- if page.sidebar -%}
+{%- if _has_sidebar -%}
     </div> {%- comment -%} end grid {%- endcomment -%}
   </div> {%- comment -%} end page__viewport {%- endcomment -%}
 {%- endif -%}
@@ -254,7 +258,7 @@ layout: base
   {%- include scripts/page.js -%}
 </script>
 
-{%- if page.sidebar -%}
+{%- if _has_sidebar -%}
 <script>{%- include scripts/components/sidebar.js -%}</script>
 {%- endif -%}
 

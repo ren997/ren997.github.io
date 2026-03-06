@@ -1,17 +1,17 @@
-{%- if page.sidebar.nav -%}
+{%- if page.series or page.sidebar.nav -%}
   <div class="sidebar-toc">
-    {%- if page.sidebar.nav == 'docs-rust' and page.series == 'rust' -%}
-      {%- assign _rust_posts = site.posts | where: 'series', 'rust' | sort: 'series_order' -%}
-      {%- assign _rust_groups = '' | split: '' -%}
-      {%- for _post in _rust_posts -%}
-        {%- assign _group = _post.categories[1] | default: '未分类' -%}
-        {%- unless _rust_groups contains _group -%}
-          {%- assign _rust_groups = _rust_groups | push: _group -%}
+    {%- if page.series -%}
+      {%- assign _series_posts = site.posts | where: 'series', page.series | sort: 'series_order' -%}
+      {%- assign _series_groups = '' | split: '' -%}
+      {%- for _post in _series_posts -%}
+        {%- assign _group = _post.categories[1] | default: 'Other' -%}
+        {%- unless _series_groups contains _group -%}
+          {%- assign _series_groups = _series_groups | push: _group -%}
         {%- endunless -%}
       {%- endfor -%}
       <ul class="toc toc--navigator">
-        {%- for _group in _rust_groups -%}
-          {%- assign _group_posts = _rust_posts | where_exp: 'post', 'post.categories[1] == _group' -%}
+        {%- for _group in _series_groups -%}
+          {%- assign _group_posts = _series_posts | where_exp: 'post', 'post.categories[1] == _group' -%}
           {%- if _group_posts.size > 0 -%}
             <li class="toc-h1">{{ _group }}</li>
             {%- for _post in _group_posts -%}
@@ -28,7 +28,7 @@
           {%- endif -%}
         {%- endfor -%}
       </ul>
-    {%- else -%}
+    {%- elsif page.sidebar.nav -%}
       {%- assign _sidebar_nav = site.data.navigation[page.sidebar.nav] -%}
       {%- if _sidebar_nav -%}
       <ul class="toc toc--navigator">

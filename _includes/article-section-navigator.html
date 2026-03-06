@@ -1,48 +1,46 @@
-{%- if page.sidebar.nav -%}
-  {%- if page.sidebar.nav == 'docs-rust' and page.series == 'rust' -%}
-    {%- assign _rust_posts = site.posts | where: 'series', 'rust' | sort: 'series_order' -%}
+{%- if page.series -%}
+  {%- assign _series_posts = site.posts | where: 'series', page.series | sort: 'series_order' -%}
+  {%- assign _find_cur = false -%}
+  {%- assign _find_next = false -%}
+
+  {%- for _post in _series_posts -%}
+    {%- if _post.url == page.url -%}
+      {%- assign _find_cur = true -%}
+    {%- elsif _find_cur and _find_next != true -%}
+      {%- assign _find_next = true -%}
+      {%- assign _next = _post -%}
+      {%- break -%}
+    {%- else -%}
+      {%- assign _previous = _post -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- elsif page.sidebar.nav -%}
+  {%- assign _sidebar_nav = site.data.navigation[page.sidebar.nav] -%}
+  {%- if _sidebar_nav -%}
     {%- assign _find_cur = false -%}
     {%- assign _find_next = false -%}
 
-    {%- for _post in _rust_posts -%}
-      {%- if _post.url == page.url -%}
-        {%- assign _find_cur = true -%}
-      {%- elsif _find_cur and _find_next != true -%}
-        {%- assign _find_next = true -%}
-        {%- assign _next = _post -%}
-        {%- break -%}
-      {%- else -%}
-        {%- assign _previous = _post -%}
+    {%- for _item in _sidebar_nav -%}
+      {%- if _find_next -%} {%- break -%} {%- endif -%}
+      {%- if _item.children -%}
+        {%- for _child in _item.children -%}
+          {%- include snippets/get-nav-url.html path=_child.url -%}
+          {%- assign _nav_url = __return -%}
+          {%- include snippets/get-nav-url.html path=page.url -%}
+          {%- assign _page_url = __return -%}
+
+          {%- if _nav_url == _page_url -%}
+            {%- assign _find_cur = true -%}
+          {%- elsif _find_cur and _find_next != true -%}
+            {%- assign _find_next = true -%}
+            {%- assign _next = _child -%}
+            {%- break -%}
+          {%- else -%}
+            {%- assign _previous = _child -%}
+          {%- endif -%}
+        {%- endfor -%}
       {%- endif -%}
     {%- endfor -%}
-  {%- else -%}
-    {%- assign _sidebar_nav = site.data.navigation[page.sidebar.nav] -%}
-    {%- if _sidebar_nav -%}
-      {%- assign _find_cur = false -%}
-      {%- assign _find_next = false -%}
-
-      {%- for _item in _sidebar_nav -%}
-        {%- if _find_next -%} {%- break -%} {%- endif -%}
-        {%- if _item.children -%}
-          {%- for _child in _item.children -%}
-            {%- include snippets/get-nav-url.html path=_child.url -%}
-            {%- assign _nav_url = __return -%}
-            {%- include snippets/get-nav-url.html path=page.url -%}
-            {%- assign _page_url = __return -%}
-
-            {%- if _nav_url == _page_url -%}
-              {%- assign _find_cur = true -%}
-            {%- elsif _find_cur and _find_next != true -%}
-              {%- assign _find_next = true -%}
-              {%- assign _next = _child -%}
-              {%- break -%}
-            {%- else -%}
-              {%- assign _previous = _child -%}
-            {%- endif -%}
-          {%- endfor -%}
-        {%- endif -%}
-      {%- endfor -%}
-    {%- endif -%}
   {%- endif -%}
 {%- else -%}
   {%- assign _previous = page.previous -%}
