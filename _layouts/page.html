@@ -38,6 +38,11 @@ layout: base
 <div class="layout--page layout--page--sidebar clearfix js-page-root">
   <div class="page__mask d-print-none js-page-mask js-sidebar-hide"></div>
   <div class="page__viewport">
+    <div class="page__sidebar-expand d-print-none">
+      <div class="button button--circle button--lg box-shadow-2 sidebar-button sidebar-button--desktop js-sidebar-expand-desktop">
+        <i class="fas fa-angle-right"></i>
+      </div>
+    </div>
     <div class="page__actions d-print-none">
       <div class="button button--circle button--lg box-shadow-2 sidebar-button js-sidebar-show">
         <i class="fas fa-bars icon--show"></i>
@@ -47,6 +52,11 @@ layout: base
     <div class="grid page__grid">
 
       <div class="page__sidebar d-print-none">
+        <div class="page__sidebar-header">
+          <button type="button" class="sidebar-desktop-toggle js-sidebar-toggle-desktop" aria-label="Collapse sidebar">
+            <i class="fas fa-angle-left"></i>
+          </button>
+        </div>
         {%- include sidebar/toc.html -%}
       </div>
 

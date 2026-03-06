@@ -168,3 +168,62 @@ html,
     padding-top: map-get($layout, header-height);
   }
 }
+
+.page__sidebar-expand {
+  position: fixed;
+  top: map-get($spacers, 4);
+  left: map-get($spacers, 3);
+  z-index: map-get($z-indexes, actions);
+  display: none;
+}
+
+.page__sidebar-header {
+  @include flexbox();
+  @include justify-content(flex-end);
+  padding: map-get($spacers, 3) map-get($spacers, 3) 0 map-get($spacers, 4);
+}
+
+.sidebar-desktop-toggle,
+.sidebar-button--desktop {
+  @include clickable($text-color-d, rgba($main-color-3, .75));
+}
+
+.sidebar-desktop-toggle {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+@include media-breakpoint-up(xl) {
+  .layout--page--sidebar {
+    &.is-sidebar-collapsed {
+      .page__sidebar {
+        width: 0;
+        max-width: 0;
+        min-width: 0;
+        border-right: 0;
+      }
+      .page__sidebar-header,
+      .sidebar-toc {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .page__sidebar-expand {
+        display: block;
+      }
+    }
+  }
+}
+
+@include media-breakpoint-down(lg) {
+  .page__sidebar-expand,
+  .page__sidebar-header {
+    display: none;
+  }
+}
+
+.page__sidebar-expand.is-visible {
+  display: block;
+}

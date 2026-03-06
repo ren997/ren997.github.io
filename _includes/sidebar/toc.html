@@ -13,18 +13,25 @@
         {%- for _group in _series_groups -%}
           {%- assign _group_posts = _series_posts | where_exp: 'post', 'post.categories[1] == _group' -%}
           {%- if _group_posts.size > 0 -%}
-            <li class="toc-h1">{{ _group }}</li>
-            {%- for _post in _group_posts -%}
-              {%- include snippets/get-nav-url.html path=_post.url -%}
-              {%- assign _nav_url = __return -%}
-              {%- include snippets/get-nav-url.html path=page.url -%}
-              {%- assign _page_url = __return -%}
-              {%- if _nav_url == _page_url -%}
-                <li class="toc-h2 active"><a href="{{ _nav_url }}">{{ _post.title }}</a></li>
-              {%- else -%}
-                <li class="toc-h2"><a href="{{ _nav_url }}">{{ _post.title }}</a></li>
-              {%- endif -%}
-            {%- endfor -%}
+            <li class="toc-group is-expanded">
+              <button type="button" class="toc-h1 toc-group__toggle js-toc-toggle" aria-expanded="true">
+                <span class="toc-group__label">{{ _group }}</span>
+                <span class="toc-group__icon"></span>
+              </button>
+              <ul class="toc-group__items">
+                {%- for _post in _group_posts -%}
+                  {%- include snippets/get-nav-url.html path=_post.url -%}
+                  {%- assign _nav_url = __return -%}
+                  {%- include snippets/get-nav-url.html path=page.url -%}
+                  {%- assign _page_url = __return -%}
+                  {%- if _nav_url == _page_url -%}
+                    <li class="toc-h2 active"><a href="{{ _nav_url }}">{{ _post.title }}</a></li>
+                  {%- else -%}
+                    <li class="toc-h2"><a href="{{ _nav_url }}">{{ _post.title }}</a></li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
+            </li>
           {%- endif -%}
         {%- endfor -%}
       </ul>
@@ -33,19 +40,26 @@
       {%- if _sidebar_nav -%}
       <ul class="toc toc--navigator">
         {%- for _item in _sidebar_nav -%}
-          <li class="toc-h1">{{ _item.title }}</li>
           {%- if _item.children -%}
-            {%- for _child in _item.children -%}
-              {%- include snippets/get-nav-url.html path=_child.url -%}
-              {%- assign _nav_url = __return -%}
-              {%- include snippets/get-nav-url.html path=page.url -%}
-              {%- assign _page_url = __return -%}
-              {%- if _nav_url == _page_url -%}
-                <li class="toc-h2 active"><a href="{{ _nav_url }}">{{ _child.title }}</a></li>
-              {%- else -%}
-                <li class="toc-h2"><a href="{{ _nav_url }}">{{ _child.title }}</a></li>
-              {%- endif -%}
-            {%- endfor -%}
+            <li class="toc-group is-expanded">
+              <button type="button" class="toc-h1 toc-group__toggle js-toc-toggle" aria-expanded="true">
+                <span class="toc-group__label">{{ _item.title }}</span>
+                <span class="toc-group__icon"></span>
+              </button>
+              <ul class="toc-group__items">
+                {%- for _child in _item.children -%}
+                  {%- include snippets/get-nav-url.html path=_child.url -%}
+                  {%- assign _nav_url = __return -%}
+                  {%- include snippets/get-nav-url.html path=page.url -%}
+                  {%- assign _page_url = __return -%}
+                  {%- if _nav_url == _page_url -%}
+                    <li class="toc-h2 active"><a href="{{ _nav_url }}">{{ _child.title }}</a></li>
+                  {%- else -%}
+                    <li class="toc-h2"><a href="{{ _nav_url }}">{{ _child.title }}</a></li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
+            </li>
           {%- endif -%}
         {%- endfor -%}
       </ul>

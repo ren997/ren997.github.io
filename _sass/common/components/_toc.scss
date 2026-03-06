@@ -122,3 +122,74 @@ ul.toc--navigator {
     }
   }
 }
+
+ul.toc--navigator {
+  .toc-group {
+    margin-bottom: map-get($spacers, 2);
+  }
+  .toc-group__toggle {
+    @include split-line(bottom);
+    @include flexbox();
+    @include justify-content(space-between);
+    @include align-items(center);
+    width: 100%;
+    padding: map-get($spacers, 2) 0 map-get($spacers, 1) 0;
+    margin-bottom: map-get($spacers, 2);
+    color: $text-color;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+  }
+  .toc-group__label {
+    display: block;
+    min-width: 0;
+  }
+  .toc-group__icon {
+    display: inline-block;
+    width: .55rem;
+    height: .55rem;
+    margin-left: map-get($spacers, 2);
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    @include transform(rotate(45deg));
+    @include transition(transform map-get($animation, duration));
+  }
+  .toc-group__items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .toc-group__items > li {
+    margin: map-get($spacers, 1) / 2 0;
+    a {
+      display: inline-block;
+      padding-left: map-get($spacers, 2);
+      margin: map-get($spacers, 1) 0;
+      text-decoration: none !important;
+    }
+    &.active {
+      a {
+        margin-left: -4px;
+        @include split-line(left, 4px, $main-color-1);
+      }
+    }
+  }
+  .toc-group:not(.is-expanded) {
+    .toc-group__items {
+      display: none;
+    }
+    .toc-group__icon {
+      @include transform(rotate(-45deg));
+    }
+  }
+  .toc-group__toggle,
+  .toc-group__toggle .toc-group__label {
+    font-size: map-get($base, font-size);
+    font-weight: map-get($base, font-weight-bold);
+    line-height: map-get($base, line-height);
+  }
+  .toc-group__toggle {
+    @include link-colors($text-color-d, $main-color-1);
+  }
+}
