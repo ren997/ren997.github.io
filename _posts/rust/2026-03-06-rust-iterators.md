@@ -1,6 +1,8 @@
 ---
 title: Rust 迭代器：惰性处理序列的统一接口
 categories: [Rust, 迭代器与闭包]
+series: rust
+series_order: 14
 tags: [rust]
 ---
 

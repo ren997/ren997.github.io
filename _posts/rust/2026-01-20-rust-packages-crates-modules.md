@@ -1,6 +1,8 @@
 ---
 title: rust文档-包、Crate 和模块管理详解
 categories: [Rust, 模块系统]
+series: rust
+series_order: 7
 tags: [rust]
 ---
 

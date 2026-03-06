@@ -1,6 +1,8 @@
 ---
 title: Rust 闭包：可以捕获环境的匿名函数
 categories: [Rust, 迭代器与闭包]
+series: rust
+series_order: 13
 tags: [rust]
 ---
 

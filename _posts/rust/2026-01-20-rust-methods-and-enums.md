@@ -1,6 +1,8 @@
 ---
 title: rust文档-方法语法和枚举
 categories: [Rust, 所有权与借用]
+series: rust
+series_order: 3
 tags: [rust]
 ---
 

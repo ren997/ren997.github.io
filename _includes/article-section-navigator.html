@@ -1,24 +1,19 @@
 {%- if page.sidebar.nav -%}
-  {%- if page.sidebar.nav == 'docs-rust' and page.path contains '_posts/rust/' -%}
-    {%- assign _rust_posts = site.posts | where_exp: 'post', 'post.path contains "_posts/rust/"' | sort: 'url' -%}
-    {%- assign _rust_groups = '所有权与借用|集合|模块系统|错误处理|CLI 与 I/O|泛型 Trait 与生命周期|迭代器与闭包' | split: '|' -%}
+  {%- if page.sidebar.nav == 'docs-rust' and page.series == 'rust' -%}
+    {%- assign _rust_posts = site.posts | where: 'series', 'rust' | sort: 'series_order' -%}
     {%- assign _find_cur = false -%}
     {%- assign _find_next = false -%}
 
-    {%- for _group in _rust_groups -%}
-      {%- if _find_next -%}{%- break -%}{%- endif -%}
-      {%- assign _group_posts = _rust_posts | where_exp: 'post', 'post.categories[1] == _group' -%}
-      {%- for _post in _group_posts -%}
-        {%- if _post.url == page.url -%}
-          {%- assign _find_cur = true -%}
-        {%- elsif _find_cur and _find_next != true -%}
-          {%- assign _find_next = true -%}
-          {%- assign _next = _post -%}
-          {%- break -%}
-        {%- else -%}
-          {%- assign _previous = _post -%}
-        {%- endif -%}
-      {%- endfor -%}
+    {%- for _post in _rust_posts -%}
+      {%- if _post.url == page.url -%}
+        {%- assign _find_cur = true -%}
+      {%- elsif _find_cur and _find_next != true -%}
+        {%- assign _find_next = true -%}
+        {%- assign _next = _post -%}
+        {%- break -%}
+      {%- else -%}
+        {%- assign _previous = _post -%}
+      {%- endif -%}
     {%- endfor -%}
   {%- else -%}
     {%- assign _sidebar_nav = site.data.navigation[page.sidebar.nav] -%}
@@ -29,7 +24,6 @@
       {%- for _item in _sidebar_nav -%}
         {%- if _find_next -%} {%- break -%} {%- endif -%}
         {%- if _item.children -%}
-
           {%- for _child in _item.children -%}
             {%- include snippets/get-nav-url.html path=_child.url -%}
             {%- assign _nav_url = __return -%}
@@ -46,12 +40,10 @@
               {%- assign _previous = _child -%}
             {%- endif -%}
           {%- endfor -%}
-
         {%- endif -%}
       {%- endfor -%}
     {%- endif -%}
   {%- endif -%}
-
 {%- else -%}
   {%- assign _previous = page.previous -%}
   {%- assign _next = page.next -%}

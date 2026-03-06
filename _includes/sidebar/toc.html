@@ -1,8 +1,14 @@
 {%- if page.sidebar.nav -%}
   <div class="sidebar-toc">
-    {%- if page.sidebar.nav == 'docs-rust' and page.path contains '_posts/rust/' -%}
-      {%- assign _rust_posts = site.posts | where_exp: 'post', 'post.path contains "_posts/rust/"' | sort: 'url' -%}
-      {%- assign _rust_groups = '所有权与借用|集合|模块系统|错误处理|CLI 与 I/O|泛型 Trait 与生命周期|迭代器与闭包' | split: '|' -%}
+    {%- if page.sidebar.nav == 'docs-rust' and page.series == 'rust' -%}
+      {%- assign _rust_posts = site.posts | where: 'series', 'rust' | sort: 'series_order' -%}
+      {%- assign _rust_groups = '' | split: '' -%}
+      {%- for _post in _rust_posts -%}
+        {%- assign _group = _post.categories[1] | default: '未分类' -%}
+        {%- unless _rust_groups contains _group -%}
+          {%- assign _rust_groups = _rust_groups | push: _group -%}
+        {%- endunless -%}
+      {%- endfor -%}
       <ul class="toc toc--navigator">
         {%- for _group in _rust_groups -%}
           {%- assign _group_posts = _rust_posts | where_exp: 'post', 'post.categories[1] == _group' -%}

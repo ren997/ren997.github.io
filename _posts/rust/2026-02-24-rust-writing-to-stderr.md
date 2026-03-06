@@ -1,6 +1,8 @@
 ---
 title: Rust 将错误信息输出到标准错误而不是标准输出
 categories: [Rust, CLI 与 I/O]
+series: rust
+series_order: 9
 tags: [rust]
 ---
 

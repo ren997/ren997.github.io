@@ -1,6 +1,8 @@
 ---
 title: Rust 泛型：用类型参数复用代码
 categories: [Rust, 泛型 Trait 与生命周期]
+series: rust
+series_order: 10
 tags: [rust]
 ---
 

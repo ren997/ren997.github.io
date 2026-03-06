@@ -1,6 +1,8 @@
 ---
 title: Rust Trait：定义共享行为
 categories: [Rust, 泛型 Trait 与生命周期]
+series: rust
+series_order: 11
 tags: [rust]
 ---
 

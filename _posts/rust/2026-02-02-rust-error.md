@@ -1,6 +1,8 @@
 ---
 title: rust 错误处理 - panic! 与不可恢复的错误
 categories: [Rust, 错误处理]
+series: rust
+series_order: 8
 tags: [rust]
 ---
 

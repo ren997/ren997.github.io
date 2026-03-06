@@ -1,4 +1,4 @@
-header:
+﻿header:
   - titles:
       # @start locale config
       en      : &EN_CAT   Categories
@@ -6,16 +6,16 @@ header:
       en-US   : *EN_CAT
       en-CA   : *EN_CAT
       en-AU   : *EN_CAT
-      zh-Hans : &ZH_HANS_CAT  鍒嗙被
+      zh-Hans : &ZH_HANS_CAT  分类
       zh      : *ZH_HANS_CAT
       zh-CN   : *ZH_HANS_CAT
       zh-SG   : *ZH_HANS_CAT
-      zh-Hant : &ZH_HANT_CAT  鍒嗛
+      zh-Hant : &ZH_HANT_CAT  分類
       zh-TW   : *ZH_HANT_CAT
       zh-HK   : *ZH_HANT_CAT
-      ko      : &KO_CAT       旃错厡瓿犽Μ
+      ko      : &KO_CAT       카테고리
       ko-KR   : *KO_CAT
-      fr      : &FR_CAT       Cat茅gories
+      fr      : &FR_CAT       Catégories
       fr-BE   : *FR_CAT
       fr-CA   : *FR_CAT
       fr-CH   : *FR_CAT
@@ -32,14 +32,14 @@ header:
       en-US   : *EN
       en-CA   : *EN
       en-AU   : *EN
-      zh-Hans : &ZH_HANS  褰掓。
+      zh-Hans : &ZH_HANS  归档
       zh      : *ZH_HANS
       zh-CN   : *ZH_HANS
       zh-SG   : *ZH_HANS
-      zh-Hant : &ZH_HANT  姝告獢
+      zh-Hant : &ZH_HANT  歸檔
       zh-TW   : *ZH_HANT
       zh-HK   : *ZH_HANT
-      ko      : &KO       鞎勳勾鞚措笇
+      ko      : &KO       아카이브
       ko-KR   : *KO
       fr      : &FR       Archives
       fr-BE   : *FR
@@ -47,7 +47,7 @@ header:
       fr-CH   : *FR
       fr-FR   : *FR
       fr-LU   : *FR
-      tr      : &TR       Ar艧ivdekiler
+      tr      : &TR       Arşivdekiler
       # @end locale config
     url: /archive.html
 
@@ -58,22 +58,22 @@ header:
 #      en-US   : *EN
 #      en-CA   : *EN
 #      en-AU   : *EN
-#      zh-Hans : &ZH_HANS  鍏充簬
+#      zh-Hans : &ZH_HANS  关于
 #      zh      : *ZH_HANS
 #      zh-CN   : *ZH_HANS
 #      zh-SG   : *ZH_HANS
-#      zh-Hant : &ZH_HANT  闂滄柤
+#      zh-Hant : &ZH_HANT  關於
 #      zh-TW   : *ZH_HANT
 #      zh-HK   : *ZH_HANT
-#      ko      : &KO       靻岅皽
+#      ko      : &KO       소개
 #      ko-KR   : *KO
-#      fr      : &FR       脌 propos
+#      fr      : &FR       À propos
 #      fr-BE   : *FR
 #      fr-CA   : *FR
 #      fr-CH   : *FR
 #      fr-FR   : *FR
 #      fr-LU   : *FR
-#      tr      : &TR       Hakk谋nda
+#      tr      : &TR       Hakkında
 #      # @end locale config
 #    url: /about.html
 

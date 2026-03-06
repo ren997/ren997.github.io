@@ -1,6 +1,8 @@
 ---
 title: rust文档-切片
 categories: [Rust, 所有权与借用]
+series: rust
+series_order: 2
 tags: [rust]
 ---
 

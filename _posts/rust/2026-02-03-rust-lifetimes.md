@@ -1,6 +1,8 @@
 ---
 title: Rust 生命周期：借用为什么必须标注关系
 categories: [Rust, 泛型 Trait 与生命周期]
+series: rust
+series_order: 12
 tags: [rust]
 ---
 
