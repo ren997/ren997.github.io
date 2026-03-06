@@ -196,7 +196,7 @@ html,
   border: 0;
 }
 
-@include media-breakpoint-up(xl) {
+@include media-breakpoint-up(lg) {
   .layout--page--sidebar {
     &.is-sidebar-collapsed {
       .page__sidebar {
