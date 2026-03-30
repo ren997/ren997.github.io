@@ -178,6 +178,13 @@ Follow the stylelint-order plugin configuration. Key groups:
 **Naming:**
 - Files: snake_case (e.g., `post.html`, `article_header.html`)
 
+### Markdown Learning Notes
+
+- For knowledge-focused learning posts (for example Rust, Solana, or concept notes meant to be mastered), include a short `课后习题` or `知识自测` section by default
+- The number of questions should match the density of the material; do not force a fixed count just for consistency
+- Questions should check whether the reader has grasped the key concepts, tradeoffs, and common confusions of the section
+- Prefer concise, high-signal exercises plus an answer section when it helps self-review
+
 ### Commit Messages
 
 Follow Conventional Commits format enforced by commitlint:
