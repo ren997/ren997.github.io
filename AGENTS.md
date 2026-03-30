@@ -202,7 +202,7 @@ Follow Conventional Commits format enforced by commitlint:
 **Rules:**
 - Header max 72 characters
 - Type lowercase
-- Subject: sentence-case, no period at end, no uppercase start
+- Subject: use Chinese by default, no period at end
 - Blank line between header and body
 
 ## Import Guidelines
